@@ -1,0 +1,69 @@
+write: ~~~ process.stdout.write(stack[wort.ind] + ''); ~~~ ;
+
+writep: test.write zap ;
+
+testNumbers:
+    "\n### testing numbers" printp
+    1 printp 2.56789 printp 100 printp ;
+
+testStrings:
+    "\n### testing strings ###" printp
+    "hello, wort!" printp "escape\tsequences!\n" printp ;
+
+testQuotation:
+    "\n### testing quotations ###" printp
+    [ 1 2 3 4 printp "a string" printp ] printp ;
+
+testPop:
+    "\n### testing zap ###" printp
+    1 2 printp printp
+    3 printp ;
+
+testDup:
+    "\n### testing dup ###" printp
+    3 dup printp printp ;
+
+testSwap:
+    "\n### testing swap ###" print
+    3 print 4 print swap printp printp ;
+
+testCat:
+    "\n### testing cat ###" print
+    [1 2] print [3 4] print cat printp;
+
+testAdd:
+    "\n### testing addition ###" print
+    4 test.write "+" test.writep 5 test.write "=" test.writep add print ;
+
+testSub:
+    "\n### testing subtraction ###" print
+    4 test.write "-" test.writep 5 test.write "=" test.writep sub print ;
+
+testMul:
+    "\n### testing multiplication ###" print
+    4 test.write "*" test.writep 5 test.write "=" test.writep mul print ;
+
+testDiv:
+    "\n### testing division ###" print
+    4 test.write "/" test.writep 5 test.write "=" test.writep div print ;
+
+testInlineJs:
+    ~~~
+    console.log("\n### testing inline js ###");
+    console.log("why hello there~ I'm some inline javascript");
+    console.log(1+2);
+    ~~~ ;
+
+main:
+    test.testNumbers
+    test.testStrings
+    test.testQuotation
+    test.testPop
+    test.testDup
+    test.testSwap
+    test.testCat
+    test.testAdd
+    test.testSub
+    test.testMul
+    test.testDiv
+    test.testInlineJs ;
