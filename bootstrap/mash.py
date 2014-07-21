@@ -14,12 +14,28 @@ BUILT_IN_FUNCS = {
     'swap': 'wort.swap(stack);',
     'cat': 'stack[--wort.ind] = stack[wort.ind].concat(stack[wort.ind+1]);',
     'cons': 'stack[wort.ind].unshift(stack[--wort.ind]);stack[wort.ind]=stack[wort.ind+1];',
+    'unit': 'stack[wort.ind] = [stack[wort.ind]];',
+    'i': 'wort.exec(stack[wort.ind--], stack);',
+    'dip': 'wort.dip(stack);',
 
     # arithmetic operations
     'add': 'stack[--wort.ind] = stack[wort.ind] + stack[wort.ind+1];',
     'sub': 'stack[--wort.ind] = stack[wort.ind] - stack[wort.ind+1];',
     'mul': 'stack[--wort.ind] = stack[wort.ind] * stack[wort.ind+1];',
     'div': 'stack[--wort.ind] = stack[wort.ind] / stack[wort.ind+1];',
+    'rem': 'stack[--wort.ind] = stack[wort.ind] % stack[wort.ind+1];',
+    'inc': 'stack[wort.ind]++;',
+    'dec': 'stack[wort.ind]--;',
+    'neg': 'stack[word.ind] = -stack[word.ind];',
+
+    # bitwise operations
+    'complement': 'stack[wort.ind] = ~stack[wort.ind];',
+    'band': 'stack[--wort.ind] = stack[wort.ind] & stack[wort.ind+1];',
+    'bor': 'stack[--wort.ind] = stack[wort.ind] | stack[wort.ind+1];',
+    'xor': 'stack[--wort.ind] = stack[wort.ind] ^ stack[wort.ind+1];',
+    'shl': 'stack[--wort.ind] = stack[wort.ind] << stack[wort.ind+1];',
+    'shr': 'stack[--wort.ind] = stack[wort.ind] >> stack[wort.ind+1];',
+    'shr_u': 'stack[--wort.ind] = stack[wort.ind] >>> stack[wort.ind+1];',
 
     'print': 'console.log(stack[wort.ind]);',
     'printp': 'console.log(stack[wort.ind--]);'
@@ -102,7 +118,9 @@ def transpileTerm(term):
         if term[0] == NUMBER or term[0] == STRING:
             return 'stack[++wort.ind] = ' + term[1] + ';'
         if term[0] == BUILT_IN:
-            return BUILT_IN_FUNCS[term[1]]
+            # TODO: use inline js here if it's available
+            # return BUILT_IN_FUNCS[term[1]]
+            return 'wort.' + term[1] + '(stack);'
         if term[0] == INLINE_JS:
             return term[1]
         if term[0] == SYMBOL:
@@ -203,7 +221,7 @@ def lex(fileInput):
 
             temp = pos
             start = temp
-            while fileInput[temp].isalnum() or fileInput[temp] == '.':
+            while fileInput[temp].isalnum() or fileInput[temp] == '.' or fileInput[temp] == '_':
                 temp += 1
             name = fileInput[start:temp]
 
@@ -224,7 +242,22 @@ def lex(fileInput):
 
 def makePrelude(module):
     output = ''
-    output += 'wort = { true: true, false: false };\n\n'
+    output += 'wort = {};\n\n'
+
+    # primary interpreter function! key candidate for optimizations
+    output += 'wort.exec = function(quote, stack) {\n'
+    output += '    quote.forEach(function(elem) {\n'
+    output += '        if (elem instanceof Function) {\n'
+    output += '            elem(stack);\n'
+    output += '        } else {\n'
+    output += '            stack[++wort.ind] = elem;\n'
+    output += '        }\n'
+    output += '    });\n'
+    output += '};\n\n'
+
+    # some basic combinators
+    output += 'wort.true = function(stack) { stack[++wort.ind] = true; };\n'
+    output += 'wort.false = function(stack) { stack[++wort.ind] = false; };\n'
     output += 'wort.zap = function(stack) { wort.ind--; };\n'
     output += 'wort.dup = function(stack) { stack[++wort.ind] = stack[wort.ind-1]; };\n'
     output += 'wort.swap = function(stack) {\n'
@@ -234,12 +267,39 @@ def makePrelude(module):
     output += '};\n'
     output += 'wort.cat = function(stack) { stack[--wort.ind] = stack[wort.ind].concat(stack[wort.ind+1]); };\n'
     output += 'wort.cons = function(stack) { stack[wort.ind].unshift(stack[--wort.ind]);stack[wort.ind]=stack[wort.ind+1]; };\n'
+    output += 'wort.unit = function(stack) { stack[wort.ind] = [stack[wort.ind]]; };\n'
+    output += 'wort.i = function(stack) { wort.exec(stack[wort.ind--], stack); };\n'
+    output += 'wort.dip = function(stack) {\n';
+    output += '    var top = stack[wort.ind--];\n'
+    output += '    var next = stack[wort.ind--];\n'
+    output += '    wort.exec(top, stack);\n'
+    output += '    stack[++wort.ind] = next;\n'
+    output += '};\n'
+
+    # arithmetic operators
     output += 'wort.add = function(stack) { stack[--wort.ind] = stack[wort.ind] + stack[wort.ind+1]; };\n'
     output += 'wort.sub = function(stack) { stack[--wort.ind] = stack[wort.ind] - stack[wort.ind+1]; };\n'
     output += 'wort.mul = function(stack) { stack[--wort.ind] = stack[wort.ind] * stack[wort.ind+1]; };\n'
     output += 'wort.div = function(stack) { stack[--wort.ind] = stack[wort.ind] / stack[wort.ind+1]; };\n'
+    output += 'wort.rem = function(stack) { stack[--wort.ind] = stack[wort.ind] % stack[wort.ind+1]; };\n'
+    output += 'wort.inc = function(stack) { stack[wort.ind]++; };\n'
+    output += 'wort.dec = function(stack) { stack[wort.ind]--; };\n'
+    output += 'wort.neg = function(stack) { stack[wort.ind] = -stack[wort.ind]; };\n'
+
+    # bitwise operators
+    output += 'wort.complement = function(stack) { stack[wort.ind] = ~stack[wort.ind]; };\n'
+    output += 'wort.band = function(stack) { stack[--wort.ind] = stack[wort.ind] & stack[wort.ind+1]; };\n'
+    output += 'wort.bor = function(stack) { stack[--wort.ind] = stack[wort.ind] | stack[wort.ind+1]; };\n'
+    output += 'wort.xor = function(stack) { stack[--wort.ind] = stack[wort.ind] ^ stack[wort.ind+1]; };\n'
+    output += 'wort.shl = function(stack) { stack[--wort.ind] = stack[wort.ind] << stack[wort.ind+1]; };\n'
+    output += 'wort.shr = function(stack) { stack[--wort.ind] = stack[wort.ind] >> stack[wort.ind+1]; };\n'
+    output += 'wort.shr_u = function(stack) { stack[--wort.ind] = stack[wort.ind] >>> stack[wort.ind+1]; };\n'
+
+    # utility functions
     output += 'wort.print = function(stack) { console.log(stack[wort.ind]); };\n'
     output += 'wort.printp = function(stack) { console.log(stack[wort.ind--]); };\n'
+
+    # setup and run
     output += 'wort.ind = -1;\n'
     output += 'wort.run = function () {\n'
     output += '    var stack = [];\n'

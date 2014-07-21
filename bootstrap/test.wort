@@ -2,6 +2,10 @@ write: ~~~ process.stdout.write(stack[wort.ind] + ''); ~~~ ;
 
 writep: test.write zap ;
 
+testBooleans:
+    "\n### testing booleans" printp
+    true printp false printp ;
+
 testNumbers:
     "\n### testing numbers" printp
     1 printp 2.56789 printp 100 printp ;
@@ -24,28 +28,60 @@ testDup:
     3 dup printp printp ;
 
 testSwap:
-    "\n### testing swap ###" print
+    "\n### testing swap ###" printp
     3 print 4 print swap printp printp ;
 
 testCat:
-    "\n### testing cat ###" print
+    "\n### testing cat ###" printp
     [1 2] print [3 4] print cat printp;
 
+testCons:
+    "\n### testing cons ###" printp
+    [1 2] [3] cons printp ;
+
+testUnit:
+    "\n### testing unit ###" printp
+    3 unit printp ;
+
+testI:
+    "\n### testing i ###" printp
+    [3 printp] print i ;
+
+testDip:
+    "\n### testing dip ###" printp
+    5 4 [printp] dip printp ;
+
 testAdd:
-    "\n### testing addition ###" print
+    "\n### testing addition ###" printp
     4 test.write "+" test.writep 5 test.write "=" test.writep add print ;
 
 testSub:
-    "\n### testing subtraction ###" print
+    "\n### testing subtraction ###" printp
     4 test.write "-" test.writep 5 test.write "=" test.writep sub print ;
 
 testMul:
-    "\n### testing multiplication ###" print
+    "\n### testing multiplication ###" printp
     4 test.write "*" test.writep 5 test.write "=" test.writep mul print ;
 
 testDiv:
-    "\n### testing division ###" print
+    "\n### testing division ###" printp
     4 test.write "/" test.writep 5 test.write "=" test.writep div print ;
+
+testRem:
+    "\n### testing rem ###" printp
+    4 test.write "%" test.writep 5 test.write "=" test.writep rem print ;
+
+testInc:
+    "\n### testing increment ###" printp
+    1 inc printp ;
+
+testDec:
+    "\n### testing decrement ###" printp
+    2 dec printp ;
+
+testNeg:
+    "\n### testing negation ###" printp
+    3 neg printp ;
 
 testInlineJs:
     ~~~
@@ -55,15 +91,30 @@ testInlineJs:
     ~~~ ;
 
 main:
+    # test data types
+    test.testBooleans
     test.testNumbers
     test.testStrings
     test.testQuotation
+
+    # test Kerby's basic combinators
     test.testPop
     test.testDup
     test.testSwap
     test.testCat
+    test.testCons
+    test.testUnit
+    test.testI
+    test.testDip
+
+    # test basic operations
     test.testAdd
     test.testSub
     test.testMul
     test.testDiv
+    test.testRem
+    test.testInc
+    test.testDec
+    test.testNeg
+
     test.testInlineJs ;
