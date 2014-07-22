@@ -3,47 +3,42 @@
 import os
 import sys
 
-BUILT_IN_FUNCS = {
+BUILT_IN_FUNCS = [
+    # sigh... why
+    'null', 'nan', 'infinity', 'neg_infinity',
+
     # boolean literals
-    'true': 'stack[++wort.ind] = true;',
-    'false': 'stack[++wort.ind] = false;',
+    'true', 'false',
 
     # basic combinators
-    'zap': 'wort.ind--;',
-    'dup': 'stack[++wort.ind] = stack[wort.ind-1];',
-    'swap': 'wort.swap(stack);',
-    'cat': 'stack[--wort.ind] = stack[wort.ind].concat(stack[wort.ind+1]);',
-    'cons': 'stack[wort.ind].unshift(stack[--wort.ind]);stack[wort.ind]=stack[wort.ind+1];',
-    'unit': 'stack[wort.ind] = [stack[wort.ind]];',
-    'i': 'wort.exec(stack[wort.ind--], stack);',
-    'dip': 'wort.dip(stack);',
+    'zap', 'dup', 'swap', 'cat', 'cons', 'unit', 'i', 'dip',
 
-    # arithmetic operations
-    'add': 'stack[--wort.ind] = stack[wort.ind] + stack[wort.ind+1];',
-    'sub': 'stack[--wort.ind] = stack[wort.ind] - stack[wort.ind+1];',
-    'mul': 'stack[--wort.ind] = stack[wort.ind] * stack[wort.ind+1];',
-    'div': 'stack[--wort.ind] = stack[wort.ind] / stack[wort.ind+1];',
-    'rem': 'stack[--wort.ind] = stack[wort.ind] % stack[wort.ind+1];',
-    'inc': 'stack[wort.ind]++;',
-    'dec': 'stack[wort.ind]--;',
-    'neg': 'stack[word.ind] = -stack[word.ind];',
+    # numeric operations
+    'neg',
 
-    # bitwise operations
-    'complement': 'stack[wort.ind] = ~stack[wort.ind];',
-    'band': 'stack[--wort.ind] = stack[wort.ind] & stack[wort.ind+1];',
-    'bor': 'stack[--wort.ind] = stack[wort.ind] | stack[wort.ind+1];',
-    'xor': 'stack[--wort.ind] = stack[wort.ind] ^ stack[wort.ind+1];',
-    'shl': 'stack[--wort.ind] = stack[wort.ind] << stack[wort.ind+1];',
-    'shr': 'stack[--wort.ind] = stack[wort.ind] >> stack[wort.ind+1];',
-    'shr_u': 'stack[--wort.ind] = stack[wort.ind] >>> stack[wort.ind+1];',
+    # questions
+    'null?', 'typeof',
 
-    'print': 'console.log(stack[wort.ind]);',
-    'printp': 'console.log(stack[wort.ind--]);'
+    # utilities
+    'print', 'printp',
+]
+
+OPERATORS = {
+    # arithmetic operators
+    '+': 'add', '-': 'sub', '*': 'mul', '/': 'div', '%': 'rem', '++': 'inc', '--': 'dec',
+    # bitwise operators
+    '~': 'complement', '&': 'band', '|': 'bor', '^': 'xor', '<<': 'shl', '>>': 'shr', '>>>': 'shr_u',
+    # logical operators
+    '&&': 'and', '||': 'or', '!': 'not',
+    # comparison operators
+    '=': 'same', '!=': 'notsame', '==': 'eq', '!==': 'noteq',
+    '<': 'less', '<=': 'lesseq', '>': 'greater', '>=': 'greatereq',
 }
 
 NAME = 'NAME'
 BUILT_IN = 'BUILT_IN'
 SYMBOL = 'SYMBOL'
+OPERATOR = 'OPERATOR'
 NUMBER = 'NUMBER'
 STRING = 'STRING'
 INLINE_JS = 'INLINE_JS'
@@ -120,9 +115,13 @@ def transpileTerm(term):
         if term[0] == BUILT_IN:
             # TODO: use inline js here if it's available
             # return BUILT_IN_FUNCS[term[1]]
-            return 'wort.' + term[1] + '(stack);'
+            return 'wort.' + term[1].replace('?', '$') + '(stack);'
         if term[0] == INLINE_JS:
             return term[1]
+        if term[0] == OPERATOR:
+            # TODO: use inline js here if it's available
+            # return BUILT_IN_FUNCS[term[1]]
+            return 'wort.' + OPERATORS[term[1]] + '(stack);'
         if term[0] == SYMBOL:
             if term[1] == '[':
                 _quote_nest += 1
@@ -191,8 +190,9 @@ def lex(fileInput):
             tokens.append((STRING, fileInput[start:pos]))
 
         # number literals
-        elif fileInput[pos].isdigit():
+        elif fileInput[pos].isdigit() or (fileInput[pos] == '-' and fileInput[pos+1].isdigit()):
             start = pos
+            pos += 1
 
             # start out getting an int literal
             while fileInput[pos].isdigit():
@@ -211,8 +211,22 @@ def lex(fileInput):
             tokens.append((SYMBOL, fileInput[pos]))
             pos += 1
 
+        # operators
+        elif not fileInput[pos].isalpha():
+            longest = ''
+            for key in OPERATORS:
+                if fileInput.find(key, pos) == pos:
+                    if len(key) > len(longest):
+                        longest = key
+            if longest == '':
+                print('bad beginning of token: ' + fileInput[pos])
+                return []
+            else:
+                pos += len(longest)
+                tokens.append((OPERATOR, longest))
+
         # built ins and user names
-        elif fileInput[pos].isalpha():
+        else:
             longest = ''
             for key in BUILT_IN_FUNCS:
                 if fileInput.find(key, pos) == pos:
@@ -221,7 +235,7 @@ def lex(fileInput):
 
             temp = pos
             start = temp
-            while fileInput[temp].isalnum() or fileInput[temp] == '.' or fileInput[temp] == '_':
+            while fileInput[temp].isalnum() or fileInput[temp] == '.' or fileInput[temp] == '_' or fileInput[temp] == '?':
                 temp += 1
             name = fileInput[start:temp]
 
@@ -231,9 +245,6 @@ def lex(fileInput):
             else:
                 pos += len(longest)
                 tokens.append((BUILT_IN, longest))
-        else:
-            print('bad beginning of token: ' + fileInput[pos])
-            return []
 
         t = tokens[len(tokens) - 1]
         tokens[len(tokens) - 1] = (t[0], t[1], line)
@@ -254,6 +265,9 @@ def makePrelude(module):
     output += '        }\n'
     output += '    });\n'
     output += '};\n\n'
+
+    # this pains me
+    output += 'wort.null = function(stack) { stack[++wort.ind] = null; };\n'
 
     # some basic combinators
     output += 'wort.true = function(stack) { stack[++wort.ind] = true; };\n'
@@ -294,6 +308,25 @@ def makePrelude(module):
     output += 'wort.shl = function(stack) { stack[--wort.ind] = stack[wort.ind] << stack[wort.ind+1]; };\n'
     output += 'wort.shr = function(stack) { stack[--wort.ind] = stack[wort.ind] >> stack[wort.ind+1]; };\n'
     output += 'wort.shr_u = function(stack) { stack[--wort.ind] = stack[wort.ind] >>> stack[wort.ind+1]; };\n'
+
+    # logical operators
+    output += 'wort.and = function(stack) { stack[--wort.ind] = stack[wort.ind] && stack[wort.ind+1]; };\n'
+    output += 'wort.or = function(stack) { stack[--wort.ind] = stack[wort.ind] || stack[wort.ind+1]; };\n'
+    output += 'wort.not = function(stack) { stack[wort.ind] = !stack[wort.ind]; };\n'
+
+    # comparison operators
+    output += 'wort.same = function(stack) { stack[++wort.ind] = stack[wort.ind-2] == stack[wort.ind-1]; };\n'
+    output += 'wort.notsame = function(stack) { stack[++wort.ind] = stack[wort.ind-2] != stack[wort.ind-1]; };\n'
+    output += 'wort.eq = function(stack) { stack[++wort.ind] = stack[wort.ind-2] === stack[wort.ind-1]; };\n'
+    output += 'wort.noteq = function(stack) { stack[++wort.ind] = stack[wort.ind-2] !== stack[wort.ind-1]; };\n'
+    output += 'wort.less = function(stack) { stack[++wort.ind] = stack[wort.ind-2] < stack[wort.ind-1]; };\n'
+    output += 'wort.lesseq = function(stack) { stack[++wort.ind] = stack[wort.ind-2] <= stack[wort.ind-1]; };\n'
+    output += 'wort.greater = function(stack) { stack[++wort.ind] = stack[wort.ind-2] > stack[wort.ind-1]; };\n'
+    output += 'wort.greatereq = function(stack) { stack[++wort.ind] = stack[wort.ind-2] >= stack[wort.ind-1]; };\n'
+
+    # questions
+    output += 'wort.null$ = function(stack) { stack[++wort.ind] = stack[wort.ind-1] == null; };\n'
+    output += 'wort.typeof = function(stack) { stack[++wort.ind] = typeof stack[wort.ind-1]; };\n'
 
     # utility functions
     output += 'wort.print = function(stack) { console.log(stack[wort.ind]); };\n'

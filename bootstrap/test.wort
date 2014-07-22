@@ -8,7 +8,7 @@ testBooleans:
 
 testNumbers:
     "\n### testing numbers" printp
-    1 printp 2.56789 printp 100 printp ;
+    1 printp 2.56789 printp -100 printp ;
 
 testStrings:
     "\n### testing strings ###" printp
@@ -16,7 +16,7 @@ testStrings:
 
 testQuotation:
     "\n### testing quotations ###" printp
-    [ 1 2 3 4 printp "a string" printp ] printp ;
+    [ 1 2 3 4 printp "a string" printp [5 67 -8] ] printp ;
 
 testPop:
     "\n### testing zap ###" printp
@@ -53,35 +53,111 @@ testDip:
 
 testAdd:
     "\n### testing addition ###" printp
-    4 test.write "+" test.writep 5 test.write "=" test.writep add print ;
+    4 test.write "+" test.writep 5 test.write "=" test.writep + print ;
 
 testSub:
     "\n### testing subtraction ###" printp
-    4 test.write "-" test.writep 5 test.write "=" test.writep sub print ;
+    4 test.write "-" test.writep 5 test.write "=" test.writep - print ;
 
 testMul:
     "\n### testing multiplication ###" printp
-    4 test.write "*" test.writep 5 test.write "=" test.writep mul print ;
+    4 test.write "*" test.writep 5 test.write "=" test.writep * print ;
 
 testDiv:
     "\n### testing division ###" printp
-    4 test.write "/" test.writep 5 test.write "=" test.writep div print ;
+    4 test.write "/" test.writep 5 test.write "=" test.writep / print ;
 
 testRem:
     "\n### testing rem ###" printp
-    4 test.write "%" test.writep 5 test.write "=" test.writep rem print ;
+    4 test.write "%" test.writep 5 test.write "=" test.writep % print ;
 
 testInc:
     "\n### testing increment ###" printp
-    1 inc printp ;
+    1 ++ printp ;
 
 testDec:
     "\n### testing decrement ###" printp
-    2 dec printp ;
+    2 -- printp ;
 
 testNeg:
     "\n### testing negation ###" printp
     3 neg printp ;
+
+testComplement:
+    "\n### testing complement ###" printp
+    4 ~ printp ;
+
+testBitwiseAnd:
+    "\n### testing bitwise AND ###" printp
+    5 1 & printp ;
+
+testBitwiseOr:
+    "\n### testing bitwise OR ###" printp
+    4 2 | printp ;
+
+testBitwiseXor:
+    "\n### testing bitwise XOR ###" printp
+    2 2 ^ printp ;
+
+testShiftLeft:
+    "\n### testing shift left ###" printp
+    2 1 << printp ;
+
+testShiftRight:
+    "\n### testing shift right ###" printp
+    2 1 >> printp -2 1 >> printp ;
+
+testShiftRightUnsigned:
+    "\n### testing shift right unsigned ###" printp
+    2 1 >>> printp -2 1 >>> printp ;
+
+testAnd:
+    "\n### testing boolean and ###" printp
+    true false && printp true true && printp ;
+
+testOr:
+    "\n### testing boolean or ###" printp
+    true false || printp false false || printp ;
+
+testSame:
+    "\n### testing same ###" printp
+    true false = printp 3 "3" = printp ;
+
+testNotSame:
+    "\n### testing not same ###" printp
+    true false != printp 3 "3" != printp ;
+
+testEq:
+    "\n### testing eq ###" printp
+    3 3 == printp 3 "3" == printp ;
+
+testNotEq:
+    "\n### testing not eq ###" printp
+    true false !== printp 3 "3" !== printp ;
+
+testLess:
+    "\n### testing less ###" printp
+    1 2 < printp 4 3 < printp ;
+
+testLessEq:
+    "\n### testing lesseq ###" printp
+    1 2 <= printp 4 4 <= printp ;
+
+testGreater:
+    "\n### testing greater ###" printp
+    2 1 > printp 3 4 > printp ;
+
+testGreaterEq:
+    "\n### testing greatereq ###" printp
+    2 1 >= printp 4 4 >= printp ;
+
+testIsNull:
+    "\n### testing null? ###" printp
+    null print null? printp ;
+
+testTypeof:
+    "\n### testing typeof ###" printp
+    3 typeof printp "hello" typeof printp ;
 
 testInlineJs:
     ~~~
@@ -116,5 +192,32 @@ main:
     test.testInc
     test.testDec
     test.testNeg
+
+    # test bitwise operators
+    test.testComplement
+    test.testBitwiseAnd
+    test.testBitwiseOr
+    test.testBitwiseXor
+    test.testShiftLeft
+    test.testShiftRight
+    test.testShiftRightUnsigned
+
+    # test logical operators
+    test.testAnd
+    test.testOr
+
+    # test comparison operators
+    test.testSame
+    test.testNotSame
+    test.testEq
+    test.testNotEq
+    test.testLess
+    test.testLessEq
+    test.testGreater
+    test.testGreaterEq
+
+    # test questions
+    test.testIsNull
+    test.testTypeof
 
     test.testInlineJs ;
