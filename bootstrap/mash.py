@@ -5,7 +5,7 @@ import sys
 
 BUILT_IN_FUNCS = [
     # sigh... why
-    'null', 'nan', 'infinity', 'neg_infinity',
+    'null',
 
     # boolean literals
     'true', 'false',
@@ -20,7 +20,7 @@ BUILT_IN_FUNCS = [
     'null?', 'typeof',
 
     # utilities
-    'print', 'printp',
+    'clear', 'print', 'printp',
 ]
 
 OPERATORS = {
@@ -33,6 +33,8 @@ OPERATORS = {
     # comparison operators
     '=': 'same', '!=': 'notsame', '==': 'eq', '!==': 'noteq',
     '<': 'less', '<=': 'lesseq', '>': 'greater', '>=': 'greatereq',
+    # object access operators
+    '->': 'set_valobj', '<-': 'set_objval', '@': 'get_prop',
 }
 
 NAME = 'NAME'
@@ -41,6 +43,8 @@ SYMBOL = 'SYMBOL'
 OPERATOR = 'OPERATOR'
 NUMBER = 'NUMBER'
 STRING = 'STRING'
+OBJECT = 'OBJECT'
+PROPERTY = 'PROPERTY'
 INLINE_JS = 'INLINE_JS'
 
 _quote_nest = 0
@@ -110,7 +114,7 @@ def transpileTerm(term):
     global _quote_nest
 
     if _quote_nest == 0:
-        if term[0] == NUMBER or term[0] == STRING:
+        if term[0] == NUMBER or term[0] == STRING or term[0] == OBJECT:
             return 'stack[++wort.ind] = ' + term[1] + ';'
         if term[0] == BUILT_IN:
             # TODO: use inline js here if it's available
@@ -128,12 +132,28 @@ def transpileTerm(term):
                 return "stack[++wort.ind] = ["
             if term[1] == ']':
                 print("too many end quotation brackets ']', line " + term[2])
+        if term[0] == PROPERTY:
+            if term[1][0] == '@':
+                return 'wort.get_prop(stack,"' + term[1][1:len(term[1])] + '");'
+            if term[1][0] == '-':
+                return 'wort.set_valobj(stack,"' + term[1][2:len(term[1])] + '");'
+            if term[1][0] == '<':
+                return 'wort.set_objval(stack,"' + term[1][2:len(term[1])] + '");'
         return term[1] + '(stack);'
     else:
-        if term[0] == NUMBER or term[0] == STRING or term[0] == NAME:
+        if term[0] == NUMBER or term[0] == STRING or term[0] == NAME or term[0] == OBJECT:
             return term[1] + ','
         if term[0] == BUILT_IN:
             return 'wort.' + term[1] + ','
+        if term[0] == OPERATOR:
+            return 'wort.' + OPERATORS[term[1]] + '(stack);'
+        if term[0] == PROPERTY:
+            if term[1][0] == '@':
+                return 'wort.get_prop(stack,"' + term[1][1:len(term[1])] + '");'
+            if term[1][0] == '-':
+                return 'wort.set_valobj(stack,"' + term[1][2:len(term[1])] + '");'
+            if term[1][0] == '<':
+                return 'wort.set_objval(stack,"' + term[1][2:len(term[1])] + '");'
         if term[0] == SYMBOL:
             if term[1] == '[':
                 _quote_nest += 1
@@ -171,6 +191,35 @@ def lex(fileInput):
                 pos += 1
             tokens.append((INLINE_JS, fileInput[start:pos]))
             pos += 3
+
+        # object literal
+        elif fileInput[pos] == '{':
+            start = pos
+            pos += 1
+            nest = 1
+            while nest != 0:
+                if fileInput[pos] == '}':
+                    nest -= 1
+                if fileInput[pos] == '{':
+                    nest += 1
+                pos += 1
+            tokens.append((OBJECT, fileInput[start:pos]))
+
+        # object modification syntax
+        elif (fileInput.find('->', pos) == pos or fileInput.find('<-', pos) == pos) and fileInput[pos+2].isalpha():
+            start = pos
+            pos += 2
+            while fileInput[pos].isalnum() or fileInput[pos] == '.' or fileInput[pos] == '_':
+                pos += 1
+            tokens.append((PROPERTY, fileInput[start:pos]))
+
+        # object property read syntax
+        elif fileInput[pos] == '@' and fileInput[pos+1].isalpha():
+            start = pos
+            pos += 1
+            while fileInput[pos].isalnum() or fileInput[pos] == '.' or fileInput[pos] == '_':
+                pos += 1
+            tokens.append((PROPERTY, fileInput[start:pos]))
 
         # get string literals
         elif fileInput[pos] == '"':
@@ -257,13 +306,13 @@ def makePrelude(module):
 
     # primary interpreter function! key candidate for optimizations
     output += 'wort.exec = function(quote, stack) {\n'
-    output += '    quote.forEach(function(elem) {\n'
-    output += '        if (elem instanceof Function) {\n'
-    output += '            elem(stack);\n'
+    output += '    for (var i = 0; i < quote.length; i++) {\n'
+    output += '        if (quote[i] instanceof Function) {\n'
+    output += '            quote[i](stack);\n'
     output += '        } else {\n'
-    output += '            stack[++wort.ind] = elem;\n'
+    output += '            stack[++wort.ind] = quote[i];\n'
     output += '        }\n'
-    output += '    });\n'
+    output += '    }\n'
     output += '};\n\n'
 
     # this pains me
@@ -324,11 +373,28 @@ def makePrelude(module):
     output += 'wort.greater = function(stack) { stack[++wort.ind] = stack[wort.ind-2] > stack[wort.ind-1]; };\n'
     output += 'wort.greatereq = function(stack) { stack[++wort.ind] = stack[wort.ind-2] >= stack[wort.ind-1]; };\n'
 
+    # access operators
+    output += 'wort.set_valobj = function(stack, name) {\n'
+    output += '    name = name || stack[wort.ind--];\n'
+    output += '    var obj = stack[wort.ind--];\n'
+    output += '    obj[name] = stack[wort.ind];\n'
+    output += '    stack[wort.ind] = obj;\n'
+    output += '};\n'
+    output += 'wort.set_objval = function(stack, name) {\n'
+    output += '    name = name || stack[wort.ind--];\n'
+    output += '    stack[wort.ind-1][name] = stack[wort.ind--];\n'
+    output += '};\n'
+    output += 'wort.get_prop = function(stack, name) {\n'
+    output += '    name = name || stack[wort.ind--];\n'
+    output += '    stack[++wort.ind] = stack[wort.ind-1][name];\n'
+    output += '};\n'
+
     # questions
     output += 'wort.null$ = function(stack) { stack[++wort.ind] = stack[wort.ind-1] == null; };\n'
     output += 'wort.typeof = function(stack) { stack[++wort.ind] = typeof stack[wort.ind-1]; };\n'
 
     # utility functions
+    output += 'wort.clear = function(stack) { stack.length = 0; };\n'
     output += 'wort.print = function(stack) { console.log(stack[wort.ind]); };\n'
     output += 'wort.printp = function(stack) { console.log(stack[wort.ind--]); };\n'
 

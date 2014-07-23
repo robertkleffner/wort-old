@@ -18,6 +18,10 @@ testQuotation:
     "\n### testing quotations ###" printp
     [ 1 2 3 4 printp "a string" printp [5 67 -8] ] printp ;
 
+testObject:
+    "\n### testing object literals ###" printp
+    { cool: 3, hello: 'hello' } printp [ {obj: 1, nested:{}} ] printp ;
+
 testPop:
     "\n### testing zap ###" printp
     1 2 printp printp
@@ -151,6 +155,21 @@ testGreaterEq:
     "\n### testing greatereq ###" printp
     2 1 >= printp 4 4 >= printp ;
 
+testSetLeft:
+    "\n### testing set left ###" printp
+    {} 2 "hello" <- printp
+    {} 2 <-hello printp ;
+
+testSetRight:
+    "\n### testing set right ###" printp
+    2 {} "hello" -> printp
+    2 {} ->hello printp ;
+
+testGet:
+    "\n### testing get ###" printp
+    {hello:2} "hello" @ printp
+    {hello:2} @hello printp ;
+
 testIsNull:
     "\n### testing null? ###" printp
     null print null? printp ;
@@ -172,6 +191,7 @@ main:
     test.testNumbers
     test.testStrings
     test.testQuotation
+    test.testObject
 
     # test Kerby's basic combinators
     test.testPop
@@ -215,6 +235,11 @@ main:
     test.testLessEq
     test.testGreater
     test.testGreaterEq
+
+    # test object access operators
+    test.testSetLeft
+    test.testSetRight
+    test.testGet
 
     # test questions
     test.testIsNull

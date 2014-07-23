@@ -62,6 +62,20 @@ test.testSwap = function(stack, index) {
     wort.printp(stack);
 };
 
+test.testSetRight = function(stack, index) {
+    stack[++wort.ind] = "\n### testing set right ###";
+    wort.printp(stack);
+    stack[++wort.ind] = 2;
+    stack[++wort.ind] = {};
+    stack[++wort.ind] = "hello";
+    wort.set_valobj(stack);
+    wort.printp(stack);
+    stack[++wort.ind] = 2;
+    stack[++wort.ind] = {};
+    wort.set_valobj(stack,"hello");
+    wort.printp(stack);
+};
+
 test.testGreater = function(stack, index) {
     stack[++wort.ind] = "\n### testing greater ###";
     wort.printp(stack);
@@ -124,9 +138,35 @@ test.testDip = function(stack, index) {
     wort.printp(stack);
 };
 
+test.testSetLeft = function(stack, index) {
+    stack[++wort.ind] = "\n### testing set left ###";
+    wort.printp(stack);
+    stack[++wort.ind] = {};
+    stack[++wort.ind] = 2;
+    stack[++wort.ind] = "hello";
+    wort.set_objval(stack);
+    wort.printp(stack);
+    stack[++wort.ind] = {};
+    stack[++wort.ind] = 2;
+    wort.set_objval(stack,"hello");
+    wort.printp(stack);
+};
+
 test.writep = function(stack, index) {
     test.write(stack);
     wort.zap(stack);
+};
+
+test.testGet = function(stack, index) {
+    stack[++wort.ind] = "\n### testing get ###";
+    wort.printp(stack);
+    stack[++wort.ind] = {hello:2};
+    stack[++wort.ind] = "hello";
+    wort.get_prop(stack);
+    wort.printp(stack);
+    stack[++wort.ind] = {hello:2};
+    wort.get_prop(stack,"hello");
+    wort.printp(stack);
 };
 
 test.testRem = function(stack, index) {
@@ -336,6 +376,17 @@ test.testGreaterEq = function(stack, index) {
     wort.printp(stack);
 };
 
+test.testObject = function(stack, index) {
+    stack[++wort.ind] = "\n### testing object literals ###";
+    wort.printp(stack);
+    stack[++wort.ind] = { cool: 3, hello: 'hello' };
+    wort.printp(stack);
+    stack[++wort.ind] = [
+    {obj: 1, nested:{}},
+    ];
+    wort.printp(stack);
+};
+
 test.testSame = function(stack, index) {
     stack[++wort.ind] = "\n### testing same ###";
     wort.printp(stack);
@@ -354,6 +405,7 @@ test.main = function(stack, index) {
     test.testNumbers(stack);
     test.testStrings(stack);
     test.testQuotation(stack);
+    test.testObject(stack);
     test.testPop(stack);
     test.testDup(stack);
     test.testSwap(stack);
@@ -387,6 +439,9 @@ test.main = function(stack, index) {
     test.testLessEq(stack);
     test.testGreater(stack);
     test.testGreaterEq(stack);
+    test.testSetLeft(stack);
+    test.testSetRight(stack);
+    test.testGet(stack);
     test.testIsNull(stack);
     test.testTypeof(stack);
     test.testInlineJs(stack);
@@ -525,13 +580,13 @@ test.testPop = function(stack, index) {
 wort = {};
 
 wort.exec = function(quote, stack) {
-    quote.forEach(function(elem) {
-        if (elem instanceof Function) {
-            elem(stack);
+    for (var i = 0; i < quote.length; i++) {
+        if (quote[i] instanceof Function) {
+            quote[i](stack);
         } else {
-            stack[++wort.ind] = elem;
+            stack[++wort.ind] = quote[i];
         }
-    });
+    }
 };
 
 wort.null = function(stack) { stack[++wort.ind] = null; };
@@ -580,8 +635,23 @@ wort.less = function(stack) { stack[++wort.ind] = stack[wort.ind-2] < stack[wort
 wort.lesseq = function(stack) { stack[++wort.ind] = stack[wort.ind-2] <= stack[wort.ind-1]; };
 wort.greater = function(stack) { stack[++wort.ind] = stack[wort.ind-2] > stack[wort.ind-1]; };
 wort.greatereq = function(stack) { stack[++wort.ind] = stack[wort.ind-2] >= stack[wort.ind-1]; };
+wort.set_valobj = function(stack, name) {
+    name = name || stack[wort.ind--];
+    var obj = stack[wort.ind--];
+    obj[name] = stack[wort.ind];
+    stack[wort.ind] = obj;
+};
+wort.set_objval = function(stack, name) {
+    name = name || stack[wort.ind--];
+    stack[wort.ind-1][name] = stack[wort.ind--];
+};
+wort.get_prop = function(stack, name) {
+    name = name || stack[wort.ind--];
+    stack[++wort.ind] = stack[wort.ind-1][name];
+};
 wort.null$ = function(stack) { stack[++wort.ind] = stack[wort.ind-1] == null; };
 wort.typeof = function(stack) { stack[++wort.ind] = typeof stack[wort.ind-1]; };
+wort.clear = function(stack) { stack.length = 0; };
 wort.print = function(stack) { console.log(stack[wort.ind]); };
 wort.printp = function(stack) { console.log(stack[wort.ind--]); };
 wort.ind = -1;
