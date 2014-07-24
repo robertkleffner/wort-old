@@ -1,4 +1,4 @@
 wort
 ====
 
-A concatenative programming language
+A very simple concatenative programming language which compiles down to JavaScript.

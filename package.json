@@ -1,0 +1,33 @@
+{
+  "name": "wort",
+  "version": "0.0.1",
+  "description": "A very simple concatenative language",
+  "main": "lib/wort.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robertkleffner/wort.git"
+  },
+  "keywords": [
+    "compiler",
+    "javascript",
+    "language",
+    "wort",
+    "concatenative"
+  ],
+  "author": "Rob Kleffner",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/robertkleffner/wort/issues"
+  },
+  "homepage": "https://github.com/robertkleffner/wort",
+  "devDependencies": {
+      "mocha": "",
+      "chai": ""
+  }
+}
