@@ -33,4 +33,17 @@ describe("#lex", function() {
         res1[0].value.should.equal(' console.log("here be inline js!");\n ');
         lex.line.should.equal(2);
     });
+
+    it('should gracefully handle unterminated object literals', function() {
+        var res1 = lex.lex('{ obj: {}, ');
+        res1.should.have.length(1);
+        res1[0].type.should.equal(lex.types.ERROR);
+    });
+
+    it('should handle object literal syntax similar to js', function() {
+        var res1 = lex.lex('{ name: "friedrich", data: { crazy: true }}');
+        res1.should.have.length(1);
+        res1[0].type.should.equal(lex.types.OBJECT);
+        res1[0].value.should.equal('{ name: "friedrich", data: { crazy: true }}');
+    });
 });
