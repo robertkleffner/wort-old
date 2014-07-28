@@ -91,4 +91,53 @@ describe("#lex", function() {
         res[0].type.should.equal(lex.types.STRING);
         res[0].value.should.equal('"Hello, World!\\n\\\"blah"');
     });
+
+    it('should emit number literals', function() {
+        var res = lex.lex('0 1.4 -3');
+        res.should.have.length(3);
+        res[0].type.should.equal(lex.types.NUMBER);
+        res[0].value.should.equal('0');
+        res[1].type.should.equal(lex.types.NUMBER);
+        res[1].value.should.equal('1.4');
+        res[2].type.should.equal(lex.types.NUMBER);
+        res[2].value.should.equal('-3');
+    });
+
+    it('should emit symbols', function() {
+        var res = lex.lex('; : [ ]');
+        res.should.have.length(4);
+        res[0].type.should.equal(lex.types.SYMBOL);
+        res[0].value.should.equal(';');
+        res[1].type.should.equal(lex.types.SYMBOL);
+        res[1].value.should.equal(':');
+        res[2].type.should.equal(lex.types.SYMBOL);
+        res[2].value.should.equal('[');
+        res[3].type.should.equal(lex.types.SYMBOL);
+        res[3].value.should.equal(']');
+    });
+
+    it('should emit arithmetic operators', function() {
+        var res = lex.lex('+ - * / % ++ --');
+        res.should.have.length(7);
+    });
+
+    it('should emit bitwise operators', function() {
+        var res = lex.lex('~ & | ^ << >> >>>');
+        res.should.have.length(7);
+    });
+
+    it('should emit logical operators', function() {
+        var res = lex.lex('&& || !');
+        res.should.have.length(3);
+    });
+
+    it('should emit comparison operators', function() {
+        var res = lex.lex('= != == !== < <= > >=');
+        res.should.have.length(8);
+    });
+
+    it('should emit object access operators', function() {
+        var res = lex.lex('-> <- @');
+        res.should.have.length(3);
+    });
 });
