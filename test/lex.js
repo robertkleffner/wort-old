@@ -140,4 +140,10 @@ describe("#lex", function() {
         var res = lex.lex('-> <- @');
         res.should.have.length(3);
     });
+
+    it('should emit identifiers', function() {
+        var res = lex.lex('import');
+        res.should.have.length(1);
+        res[0].type.should.equal(lex.types.WORD);
+    });
 });
