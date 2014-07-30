@@ -142,8 +142,11 @@ describe("#lex", function() {
     });
 
     it('should emit identifiers', function() {
-        var res = lex.lex('import');
-        res.should.have.length(1);
+        var res = lex.lex('import ho_dor ho.dor ho?dor');
+        res.should.have.length(4);
         res[0].type.should.equal(lex.types.WORD);
+        res[1].type.should.equal(lex.types.WORD);
+        res[2].type.should.equal(lex.types.WORD);
+        res[3].type.should.equal(lex.types.WORD);
     });
 });
