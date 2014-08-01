@@ -1,4 +1,4 @@
-var std = (function() {
+module.exports = (function() {
     var e = {};
 
     e.ind = -1;
@@ -101,5 +101,3 @@ var std = (function() {
     e.print = function(stack) { console.log(stack[this.ind]); };
     e.printz = function(stack) { console.log(stack[this.ind--]); };
 })();
-
-// IF NODE.JS -> exports.module = std;

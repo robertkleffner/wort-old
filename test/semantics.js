@@ -37,10 +37,10 @@ describe('#semantics', function() {
     it('should analyze and replace import aliases', function() {
         var mod = semantics.analyze(parser.parse(lex.lex('import hodor; import goo as g; main: hodor.hodor g.foo;')));
         mod.analysisErrors.should.have.length(0);
-        mod.imports[0].alias.should.equal('$0');
-        mod.imports[1].alias.should.equal('$1');
-        mod.definitions[0].terms[0].value.should.equal('$0.hodor');
-        mod.definitions[0].terms[1].value.should.equal('$1.foo');
+        mod.imports[0].alias.should.equal('$1');
+        mod.imports[1].alias.should.equal('$2');
+        mod.definitions[0].terms[0].value.should.equal('$1.hodor');
+        mod.definitions[0].terms[1].value.should.equal('$2.foo');
     });
 
     it('should catch duplicate imports of the same module', function() {
