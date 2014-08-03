@@ -19,6 +19,24 @@ describe('#parse', function() {
         should.not.exist(res.err);
     });
 
+    it('should use the file name if no module declaration is supplied', function() {
+        var res = parser.parse(lex.lex(''), 'hodor');
+        res.name.should.equal('hodor');
+        res.requires.should.have.length(0);
+        res.definitions.should.have.length(0);
+        res.imports.should.have.length(0);
+        should.not.exist(res.err);
+    });
+
+    it('should parse input with only module declaration', function() {
+        var res = parser.parse(lex.lex('module test.hodor;'));
+        res.name.should.equal('test.hodor');
+        res.requires.should.have.length(0);
+        res.definitions.should.have.length(0);
+        res.imports.should.have.length(0);
+        should.not.exist(res.err);
+    });
+
     it('should parse input with only imports', function() {
         var res = parser.parse(lex.lex('import hodor; import hodor as hodor;'));
         res.requires.should.have.length(0);
@@ -30,6 +48,8 @@ describe('#parse', function() {
     it('should parse input with only requires', function() {
         var res = parser.parse(lex.lex('require "./hodor" as hodor;'));
         res.requires.should.have.length(1);
+        res.requires[0].path.should.equal('"./hodor"');
+        res.requires[0].alias.should.equal('hodor');
         res.definitions.should.have.length(0);
         res.imports.should.have.length(0);
         should.not.exist(res.err);
@@ -81,6 +101,18 @@ describe('#parse', function() {
         res.definitions[0].terms[0].value.should.equal('"hello"');
         res.definitions[0].terms[1].type.should.equal(lex.types.STRING);
         res.definitions[0].terms[1].value.should.equal('"escape\\\" sequence\\n"');
+        should.not.exist(res.err);
+    });
+
+    it('should parse quotations', function() {
+        var res = parser.parse(lex.lex('main: [];'));
+        res.definitions[0].terms.should.have.length(1);
+        res.definitions[0].terms[0].should.have.length(0);
+        should.not.exist(res.err);
+
+        res = parser.parse(lex.lex('main: [[]];'));
+        res.definitions[0].terms.should.have.length(1);
+        res.definitions[0].terms[0].should.have.length(1);
         should.not.exist(res.err);
     });
 });

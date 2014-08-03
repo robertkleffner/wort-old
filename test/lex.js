@@ -47,20 +47,6 @@ describe("#lex", function() {
         res[0].value.should.equal('{ name: "friedrich", data: { crazy: true }}');
     });
 
-    it('should gracefully handle improper property setters and readers', function() {
-        var res = lex.lex('->*');
-        res.should.have.length(1);
-        res[0].type.should.equal(lex.types.ERROR);
-
-        res = lex.lex('<-*');
-        res.should.have.length(1);
-        res[0].type.should.equal(lex.types.ERROR);
-
-        res = lex.lex('@*');
-        res.should.have.length(1);
-        res[0].type.should.equal(lex.types.ERROR);
-    });
-
     it('should emit property setters for objects', function() {
         var res = lex.lex('->hello');
         res.should.have.length(1);
