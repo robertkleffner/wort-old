@@ -37,14 +37,6 @@ describe('#parse', function() {
         should.not.exist(res.err);
     });
 
-    it('should parse input with only imports', function() {
-        var res = parser.parse(lex.lex('import hodor; import hodor as hodor;'));
-        res.requires.should.have.length(0);
-        res.definitions.should.have.length(0);
-        res.imports.should.have.length(2);
-        should.not.exist(res.err);
-    });
-
     it('should parse input with only requires', function() {
         var res = parser.parse(lex.lex('require "./hodor" as hodor;'));
         res.requires.should.have.length(1);
@@ -60,18 +52,6 @@ describe('#parse', function() {
         res.requires.should.have.length(0);
         res.definitions.should.have.length(2);
         res.imports.should.have.length(0);
-        should.not.exist(res.err);
-    });
-
-    it('should keep names and aliases for imports', function() {
-        var res = parser.parse(lex.lex('import hodor;'));
-        res.imports[0].name.should.equal('hodor');
-        res.imports[0].alias.should.equal('');
-        should.not.exist(res.err);
-
-        res = parser.parse(lex.lex('import hodor as hodor;'));
-        res.imports[0].name.should.equal('hodor');
-        res.imports[0].alias.should.equal('hodor');
         should.not.exist(res.err);
     });
 

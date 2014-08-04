@@ -41,21 +41,9 @@ describe('#semantics', function() {
         mod.definitions[0].terms[1].value.should.equal('foo');
     });
 
-    it('should catch duplicate imports of the same module', function() {
-        var mod = semantics.analyze(parser.parse(lex.lex('import hodor; import hodor;')));
+    it('should detect duplicate require aliases', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('require "./hodor" as t; require "./test" as t;')));
         mod.analysisErrors.should.have.length(1);
-        mod.analysisErrors[0].value.should.equal('Importing module "hodor" twice is redundant');
-
-        mod = semantics.analyze(parser.parse(lex.lex('import hodor; import test as hodor;')));
-        mod.analysisErrors.should.have.length(1);
-        mod.analysisErrors[0].value.should.equal('Import alias "hodor" collides with an imported module name');
-
-        mod = semantics.analyze(parser.parse(lex.lex('import test as hodor; import hodor;')));
-        mod.analysisErrors.should.have.length(1);
-        mod.analysisErrors[0].value.should.equal('Import alias "hodor" collides with an imported module name');
-
-        mod = semantics.analyze(parser.parse(lex.lex('import test as hodor; import test2 as hodor;')));
-        mod.analysisErrors.should.have.length(1);
-        mod.analysisErrors[0].value.should.equal('Import alias "hodor" collides with a previous import alias');
+        mod.analysisErrors[0].value.should.equal('Require alias "t" is used more than once')
     });
 });
