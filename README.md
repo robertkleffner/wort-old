@@ -21,7 +21,12 @@ Wort transpiles .wort files to NodeJS modules by default.
 wort hodor.wort
 ```
 
-The transpiled file will be named `hodor.wort.js`.
+The transpiled file will be named `hodor.wort.js`. You can run this file by typing:
+
+```shell
+node hodor.wort.js
+```
+
 You can specify your target using the `-t` option.
 
 ```shell

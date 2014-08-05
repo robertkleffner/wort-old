@@ -68,4 +68,10 @@ describe('#semantics', function() {
         mod.analysisErrors.should.have.length(0);
         mod.definitions[1].terms[0].value.should.equal('$0.Test');
     });
+
+    it('should analyze terms inside a quotation', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('Test: 2; main: [Test];')));
+        mod.analysisErrors.should.have.length(0);
+        mod.definitions[1].terms[0][0].value.should.equal('$0.Test');
+    });
 });
