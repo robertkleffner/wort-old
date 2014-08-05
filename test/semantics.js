@@ -46,4 +46,26 @@ describe('#semantics', function() {
         mod.analysisErrors.should.have.length(1);
         mod.analysisErrors[0].value.should.equal('Require alias "t" is used more than once')
     });
+
+    it('should detect definitions which conflict with keywords', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('dup: 2;')));
+        mod.analysisErrors.should.have.length(1);
+        mod.analysisErrors[0].value.should.equal('dup is a built in keyword');
+    });
+
+    it('should detect a public Main method if present', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('Main: 2;')));
+        mod.analysisErrors.should.have.length(0);
+        mod.hasMain.should.equal(true);
+
+        var mod = semantics.analyze(parser.parse(lex.lex('main: 2;')));
+        mod.analysisErrors.should.have.length(0);
+        mod.hasMain.should.equal(false);
+    });
+
+    it('should append a prefix to local public word calls', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('Test: 2; main: Test;')));
+        mod.analysisErrors.should.have.length(0);
+        mod.definitions[1].terms[0].value.should.equal('$0.Test');
+    });
 });

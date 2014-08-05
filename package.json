@@ -1,8 +1,11 @@
 {
   "name": "wort",
   "version": "0.0.1",
-  "description": "A very simple concatenative language",
-  "main": "lib/wort.js",
+  "description": "A JavaScript transpiler for the Wort programming language",
+  "main": "lib/std-node.js",
+  "bin": {
+    "wort": "lib/wort.js"
+  },
   "directories": {
     "test": "test"
   },
@@ -20,14 +23,21 @@
     "wort",
     "concatenative"
   ],
-  "author": "Rob Kleffner",
+  "author": {
+    "name": "Rob Kleffner",
+    "email": "gamecodeshark@gmail.com",
+    "web": "http://glossopoeia.com"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/robertkleffner/wort/issues"
   },
   "homepage": "https://github.com/robertkleffner/wort",
   "devDependencies": {
-      "mocha": "",
-      "chai": ""
+    "mocha": "",
+    "chai": ""
+  },
+  "dependencies": {
+    "commander": "^2.3.0"
   }
 }
