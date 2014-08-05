@@ -38,6 +38,6 @@
     "chai": ""
   },
   "dependencies": {
-    "commander": "^2.3.0"
+    "commander": ""
   }
 }
