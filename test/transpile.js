@@ -30,18 +30,18 @@ describe('#transpile', function() {
 
     it('should emit a simple public definition', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Test: 2;'), 'hodor')), transpile.targets.BROWSER);
-        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstack[++std.ind] = 2;\n};\nreturn $0;\n})();\n')
+        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\n')
     });
 
     it('should emit a public and private definition', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('test: "hello"; Test: 2;'), 'hodor')), transpile.targets.BROWSER);
-        res.should.equal('var hodor = (function() {\nvar $0 = {};\nfunction test(stack) {\nstack[++std.ind] = "hello";\n}\n' +
-            '$0.Test = function(stack) {\nstack[++std.ind] = 2;\n};\nreturn $0;\n})();\n')
+        res.should.equal('var hodor = (function() {\nvar $0 = {};\nfunction test(stack) {\nstack.push("hello");\n}\n' +
+            '$0.Test = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\n')
     });
 
     it('should emit an object literal', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Test: {test: "hello"};'), 'hodor')), transpile.targets.BROWSER);
-        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstack[++std.ind] = {test: "hello"};\n};\nreturn $0;\n})();\n')
+        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstack.push({test: "hello"});\n};\nreturn $0;\n})();\n')
     });
 
     it('should emit inline javascript', function() {
@@ -66,19 +66,19 @@ describe('#transpile', function() {
 
     it('should emit user defined words', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('test: 2; Test: test;'), 'hodor')), transpile.targets.BROWSER);
-        res.should.equal('var hodor = (function() {\nvar $0 = {};\nfunction test(stack) {\nstack[++std.ind] = 2;\n}\n$0.Test = function(stack) {\ntest(stack);\n};\nreturn $0;\n})();\n')
+        res.should.equal('var hodor = (function() {\nvar $0 = {};\nfunction test(stack) {\nstack.push(2);\n}\n$0.Test = function(stack) {\ntest(stack);\n};\nreturn $0;\n})();\n')
     });
 
     it('should emit quotations', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Test: [2];'), 'hodor')), transpile.targets.BROWSER);
-        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstack[++std.ind] = [2,];\n};\nreturn $0;\n})();\n')
+        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstack.push([2]);\n};\nreturn $0;\n})();\n')
     });
 
     it('should call public Main if present', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Main: 2;'), 'hodor')), transpile.targets.BROWSER);
-        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstack[++std.ind] = 2;\n};\nreturn $0;\n})();\nhodor.Main([]);\n');
+        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\nhodor.Main([]);\n');
 
         res = transpile.transpile(s.analyze(p.parse(l.lex('Main: 2;'), 'hodor')), transpile.targets.NODE);
-        res.should.equal('var std = require("wort");\nvar hodor = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstack[++std.ind] = 2;\n};\nreturn $0;\n})();\nhodor.Main([]);\n');
+        res.should.equal('var std = require("wort");\nvar hodor = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\nhodor.Main([]);\n');
     });
 });
