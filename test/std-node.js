@@ -35,4 +35,22 @@ describe('#std', function() {
         stack.should.have.length(1);
         should.not.exist(stack[0]);
     });
+
+    it('should push boolean values on the stack', function() {
+        var stack = [];
+        std.annihilate(stack);
+
+        std.true(stack);
+        std.false(stack);
+        stack.should.have.length(2);
+        stack[0].should.equal(true);
+        stack[1].should.equal(false);
+    });
+
+    it('should perform arithmetic', function() {
+        var stack = [1,2];
+        std.ind = 1;
+        std.add(stack);
+        stack[0].should.equal(3);
+    });
 });
