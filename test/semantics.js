@@ -28,6 +28,12 @@ describe('#semantics', function() {
         mod.analysisErrors[0].value.should.equal('Undefined local word "hodor"');
     });
 
+    it('should catch names defined twice', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('Main: 2; Main: 3;')));
+        mod.analysisErrors.should.have.length(1);
+        mod.analysisErrors[0].value.should.equal('Word "Main" is defined twice');
+    });
+
     it('should strip question marks from names', function() {
         var mod = semantics.analyze(parser.parse(lex.lex('main: null?;')));
         mod.analysisErrors.should.have.length(0);
@@ -47,10 +53,10 @@ describe('#semantics', function() {
         mod.analysisErrors[0].value.should.equal('Require alias "t" is used more than once')
     });
 
-    it('should detect definitions which conflict with keywords', function() {
-        var mod = semantics.analyze(parser.parse(lex.lex('dup: 2;')));
-        mod.analysisErrors.should.have.length(1);
-        mod.analysisErrors[0].value.should.equal('dup is a built in keyword');
+    it('should mark whether the module uses the standard library', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('Dup: dup;')));
+        mod.analysisErrors.should.have.length(0);
+        mod.usesStd.should.equal(true);
     });
 
     it('should detect a public Main method if present', function() {

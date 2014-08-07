@@ -1,0 +1,138 @@
+module std;
+
+###############################################
+### Literals
+###############################################
+
+### Null
+### Pushes the null value onto the stack
+### S -> S null
+Null:
+    ~~~
+    stack.push(null);
+    ~~~ ;
+
+### True
+### Pushes the value 'true' onto the stack
+### S -> S boolean
+True:
+    ~~~
+    stack.push(true);
+    ~~~ ;
+
+### False
+### Pushes the value 'false' onto the stack
+### S -> S boolean
+False:
+    ~~~
+    stack.push(false);
+    ~~~ ;
+
+###############################################
+### Kirby's 8 Basic Combinators
+###############################################
+
+### Zap
+### Pops the top value off the stack
+### S A -> S
+Zap:
+    ~~~
+    stack.pop();
+    ~~~ ;
+
+### Dup
+### Duplicates the element on top of the stack
+### S A -> S A A
+Dup:
+    ~~~
+    stack.push(stack[stack.length-1]);
+    ~~~ ;
+
+### Swap
+### Swaps the top two elements on top of the stack
+### S B A -> S A B
+Swap:
+    ~~~
+    var tmp = stack[stack.length-1];
+    stack[stack.length-1] = stack[stack.length-2];
+    stack[stack.length-2] = tmp;
+    ~~~ ;
+
+### Cat
+### Concatenates the two quotations on top of the stack
+### S [B] [A] -> S [B A]
+Cat:
+    ~~~
+    var top = stack.pop();
+    stack.push(stack.pop().concat(top));
+    ~~~ ;
+
+### Cons
+### Prepends the item below the quotation
+### S B [A] -> S [B A]
+Cons:
+    ~~~
+    var q = stack.pop();
+    q.unshift(stack.pop());
+    stack.push(q);
+    ~~~ ;
+
+### Unit
+### Quotes the item on top of the stack
+### S A -> S [A]
+Unit:
+    ~~~
+    stack[stack.length-1] = [stack[stack.length-1]];
+    ~~~ ;
+
+### I
+### Executes the quotation on top of the stack.
+### S [A] -> S A
+I:
+    ~~~
+    var q = stack.pop();
+    for (var i = 0; i < q.length; i++) {
+        if (quote[i] instanceof Function) {
+            quote[i](stack);
+        } else {
+            stack.push(quote[i]);
+        }
+    }
+    ~~~ ;
+
+### Dip
+### Executes the quotation on top of the stack, preserving the item below it
+### S B [A] -> S A B
+Dip:
+    ~~~
+    var q = stack.pop(), s = stack.pop();
+    for (var i = 0; i < q.length; i++) {
+        if (quote[i] instanceof Function) {
+            quote[i](stack);
+        } else {
+            stack.push(quote[i]);
+        }
+    }
+    stack.push(s);
+    ~~~ ;
+
+###############################################
+### Arithmetic Operations
+###############################################
+
+### Add
+### Performs the + JS operation on the two top items of the stack. Pushes the result.
+### S B A -> S (B+A)
+Add:
+    ~~~
+    stack.push(stack.pop() + stack.pop());
+    ~~~ ;
+
+### Sub
+### Subtracts the top element from the element below it. Pushes the result.
+### S B A -> S (B-A)
+Sub:
+    ~~~
+    var top = stack.pop();
+    stack.push(stack.pop() - top);
+    ~~~ ;

@@ -12,7 +12,7 @@ describe('#transpile', function() {
 
     it('should return an empty module for empty input', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex(''), 'hodor')), transpile.targets.NODE);
-        res.should.equal('var std = require("wort");\nvar hodor = (function() {\n})();\nmodule.exports = hodor;\n');
+        res.should.equal('var hodor = (function() {\n})();\nmodule.exports = hodor;\n');
 
         var res = transpile.transpile(s.analyze(p.parse(l.lex(''), 'hodor')), transpile.targets.BROWSER);
         res.should.equal('var hodor = (function() {\n})();\n');
@@ -25,7 +25,7 @@ describe('#transpile', function() {
 
     it('should emit require statements for node js', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('require "test" as t;'), 'hodor')), transpile.targets.NODE);
-        res.should.equal('var std = require("wort");\nvar t = require("test");\nvar hodor = (function() {\n})();\nmodule.exports = hodor;\n')
+        res.should.equal('var t = require("test");\nvar hodor = (function() {\n})();\nmodule.exports = hodor;\n')
     });
 
     it('should emit a simple public definition', function() {
@@ -46,7 +46,7 @@ describe('#transpile', function() {
 
     it('should emit inline javascript', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Test: ~~~ console.log("hodor!") ~~~;'), 'hodor')), transpile.targets.BROWSER);
-        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\n console.log("hodor!") ;\n};\nreturn $0;\n})();\n')
+        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\n console.log("hodor!") \n};\nreturn $0;\n})();\n')
     });
 
     it('should emit operators', function() {
@@ -78,7 +78,7 @@ describe('#transpile', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Main: 2;'), 'hodor')), transpile.targets.BROWSER);
         res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\nhodor.Main([]);\n');
 
-        res = transpile.transpile(s.analyze(p.parse(l.lex('Main: 2;'), 'hodor')), transpile.targets.NODE);
-        res.should.equal('var std = require("wort");\nvar hodor = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\nhodor.Main([]);\n');
+        res = transpile.transpile(s.analyze(p.parse(l.lex('Main: dup;'), 'hodor')), transpile.targets.NODE);
+        res.should.equal('var std = require("wort");\nvar hodor = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstd.dup(stack);\n};\nreturn $0;\n})();\nhodor.Main([]);\n');
     });
 });
