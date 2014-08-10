@@ -1,4 +1,20 @@
+### Module: std
+### The standard library for the Wort programming language.
 module std;
+
+### Exec
+### Main interpreter function, prime candidate for optimization!
+exec:
+    ~~~
+    var q = arguments[0], stack = arguments[1];
+    for (var i = 0; i < q.length; i++) {
+        if (q[i] instanceof Function) {
+            q[i](stack);
+        } else {
+            stack.push(q[i]);
+        }
+    }
+    ~~~ ;
 
 ###############################################
 ### Literals
@@ -6,23 +22,23 @@ module std;
 
 ### Null
 ### Pushes the null value onto the stack
-### S -> S null
+### -> null
 Null:
     ~~~
     stack.push(null);
     ~~~ ;
 
-### True
+### ### True
 ### Pushes the value 'true' onto the stack
-### S -> S boolean
+### -> boolean
 True:
     ~~~
     stack.push(true);
     ~~~ ;
 
-### False
+### ### False
 ### Pushes the value 'false' onto the stack
-### S -> S boolean
+### -> boolean
 False:
     ~~~
     stack.push(false);
@@ -34,7 +50,7 @@ False:
 
 ### Zap
 ### Pops the top value off the stack
-### S A -> S
+### A ->
 Zap:
     ~~~
     stack.pop();
@@ -42,15 +58,28 @@ Zap:
 
 ### Dup
 ### Duplicates the element on top of the stack
-### S A -> S A A
+### A -> A A
 Dup:
     ~~~
-    stack.push(stack[stack.length-1]);
+    var item = stack[stack.length-1];
+    if (Array.isArray(item)) {
+        stack.push(item.concat());
+    } else if (typeof item === 'object') {
+        var obj = {};
+        for (var i in item) {
+            if (item.hasOwnProperty(i)) {
+                obj[i] = item[i];
+            }
+        }
+        stack.push(obj);
+    } else {
+        stack.push(item);
+    }
     ~~~ ;
 
 ### Swap
 ### Swaps the top two elements on top of the stack
-### S B A -> S A B
+### B A -> A B
 Swap:
     ~~~
     var tmp = stack[stack.length-1];
@@ -60,7 +89,7 @@ Swap:
 
 ### Cat
 ### Concatenates the two quotations on top of the stack
-### S [B] [A] -> S [B A]
+### [B] [A] -> [B A]
 Cat:
     ~~~
     var top = stack.pop();
@@ -69,7 +98,7 @@ Cat:
 
 ### Cons
 ### Prepends the item below the quotation
-### S B [A] -> S [B A]
+### B [A] -> [B A]
 Cons:
     ~~~
     var q = stack.pop();
@@ -79,7 +108,7 @@ Cons:
 
 ### Unit
 ### Quotes the item on top of the stack
-### S A -> S [A]
+### A -> [A]
 Unit:
     ~~~
     stack[stack.length-1] = [stack[stack.length-1]];
@@ -87,30 +116,30 @@ Unit:
 
 ### I
 ### Executes the quotation on top of the stack.
-### S [A] -> S A
+### [A] -> A
 I:
     ~~~
     var q = stack.pop();
     for (var i = 0; i < q.length; i++) {
-        if (quote[i] instanceof Function) {
-            quote[i](stack);
+        if (q[i] instanceof Function) {
+            q[i](stack);
         } else {
-            stack.push(quote[i]);
+            stack.push(q[i]);
         }
     }
     ~~~ ;
 
 ### Dip
 ### Executes the quotation on top of the stack, preserving the item below it
-### S B [A] -> S A B
+### B [A] -> A B
 Dip:
     ~~~
     var q = stack.pop(), s = stack.pop();
     for (var i = 0; i < q.length; i++) {
-        if (quote[i] instanceof Function) {
-            quote[i](stack);
+        if (q[i] instanceof Function) {
+            q[i](stack);
         } else {
-            stack.push(quote[i]);
+            stack.push(q[i]);
         }
     }
     stack.push(s);
@@ -121,8 +150,8 @@ Dip:
 ###############################################
 
 ### Add
-### Performs the + JS operation on the two top items of the stack. Pushes the result.
-### S B A -> S (B+A)
+### Performs the + JS operation on the top two items of the stack. Pushes the result.
+### B A -> (B+A)
 Add:
     ~~~
     stack.push(stack.pop() + stack.pop());
@@ -130,9 +159,666 @@ Add:
 
 ### Sub
 ### Subtracts the top element from the element below it. Pushes the result.
-### S B A -> S (B-A)
+### B A -> (B-A)
 Sub:
     ~~~
     var top = stack.pop();
     stack.push(stack.pop() - top);
+    ~~~ ;
+
+### Mul
+### Multiplies the top two element of the stack. Pushes the result.
+### B A -> (B*A)
+Mul:
+    ~~~
+    stack.push(stack.pop() * stack.pop());
+    ~~~ ;
+
+### Div
+### Divides the second element on the stack by the top element. Pushes the result.
+### B A -> (B/A)
+Div:
+    ~~~
+    var top = stack.pop();
+    stack.push(stack.pop() / top);
+    ~~~ ;
+
+### Rem
+### Calculates the remainder of dividing the second element by the top element. Pushes the result.
+### B A -> (B%A)
+Rem:
+    ~~~
+    var top = stack.pop();
+    stack.push(stack.pop() % top);
+    ~~~ ;
+
+### Inc
+### Increments the element on top of the stack.
+### A -> A+1
+Inc:
+    ~~~
+    stack[stack.length-1]++;
+    ~~~ ;
+
+### Dec
+### Decrements the element on top of the stack.
+### A -> A-1
+Dec:
+    ~~~
+    stack[stack.length-1]--;
+    ~~~ ;
+
+### Neg
+### Negates the element on top of the stack.
+### A -> -A
+Neg:
+    ~~~
+    stack[stack.length-1] = -stack[stack.length-1];
+    ~~~ ;
+
+###############################################
+### Bitwise Operations
+###############################################
+
+### Complement
+### Gets the bitwise complement of the number on top of the stack.
+### A -> ~A
+Complement:
+    ~~~
+    stack[stack.length-1] = ~stack[stack.length-1];
+    ~~~ ;
+
+### Band
+### Pushes the bitwise AND of the two numbers on top of the stack.
+### B A -> (B&A)
+Band:
+    ~~~
+    stack.push(stack.pop() & stack.pop());
+    ~~~ ;
+
+### Bor
+### Pushes the bitwise OR of the two numbers on top of the stack.
+### B A -> (B|A)
+Bor:
+    ~~~
+    stack.push(stack.pop() | stack.pop());
+    ~~~ ;
+
+### Xor
+### Pushes the bitwise XOR of the two numbers on top of the stack.
+### B A -> (B^A)
+Xor:
+    ~~~
+    stack.push(stack.pop() ^ stack.pop());
+    ~~~ ;
+
+### Shl
+### Pushes the second element shifted left by the top element.
+### B A -> (B<<A)
+Shl:
+    ~~~
+    var top = stack.pop(); stack.push(stack.pop() << top);
+    ~~~ ;
+
+### Shr
+### Pushes the second element shifted right by the top element. Sign is preserved.
+### B A -> (B>>A)
+Shr:
+    ~~~
+    var top = stack.pop(); stack.push(stack.pop() >> top);
+    ~~~ ;
+
+### Shr_u
+### Pushes the second element shifted right by the top element. Sign is not preserved.
+### B A -> (B>>>A)
+Shr_u:
+    ~~~
+    var top = stack.pop(); stack.push(stack.pop() >>> top);
+    ~~~ ;
+
+###############################################
+### Logical Operators
+###############################################
+
+### And
+### Pushes the logical AND of the top two elements.
+### B A -> (B&&A)
+And:
+    ~~~
+    stack.push(stack.pop() && stack.pop());
+    ~~~ ;
+
+### Or
+### Pushes the logical OR of the top two elements.
+### B A -> (B||A)
+Or:
+    ~~~
+    stack.push(stack.pop() || stack.pop());
+    ~~~ ;
+
+### Not
+### Flips the boolean on top of the stack.
+### A -> !A
+Not:
+    ~~~
+    stack[stack.length-1] = !stack[stack.length-1];
+    ~~~ ;
+
+###############################################
+### Comparison Operators
+###############################################
+
+### Same
+### Pushes a truth value comparing the top two elements using ==
+### B A -> B A (B==A)
+Same:
+    ~~~
+    stack.push(stack[stack.length-2] == stack[stack.length-1]);
+    ~~~ ;
+
+### Notsame
+### Pushes a truth value comparing the top two elements using !=
+### B A -> B A (B!=A)
+Notsame:
+    ~~~
+    stack.push(stack[stack.length-2] != stack[stack.length-1]);
+    ~~~ ;
+
+### Eq
+### Pushes a truth value comparing the top two elements using ===
+### B A -> B A (B===A)
+Eq:
+    ~~~
+    stack.push(stack[stack.length-2] === stack[stack.length-1]);
+    ~~~ ;
+
+### Noteq
+### Pushes a truth value comparing the top two elements using !==
+### B A -> B A (B!==A)
+Noteq:
+    ~~~
+    stack.push(stack[stack.length-2] !== stack[stack.length-1]);
+    ~~~ ;
+
+### Less
+### Pushes a truth value determining whether the second element is < the top element.
+### B A -> B A (B<A)
+Less:
+    ~~~
+    stack.push(stack[stack.length-2] < stack[stack.length-1]);
+    ~~~ ;
+
+### Lesseq
+### Pushes a truth value determining whether the second element is <= the top element.
+### B A -> B A (B<=A)
+Lesseq:
+    ~~~
+    stack.push(stack[stack.length-2] <= stack[stack.length-1]);
+    ~~~ ;
+
+### Greater
+### Pushes a truth value determining whether the second element is > the top element.
+### B A -> B A (B>A)
+Greater:
+    ~~~
+    stack.push(stack[stack.length-2] > stack[stack.length-1]);
+    ~~~ ;
+
+### Greatereq
+### Pushes a truth value determining whether the second element is >= the top element.
+### B A -> B A (B>=A)
+Greatereq:
+    ~~~
+    stack.push(stack[stack.length-2] >= stack[stack.length-1]);
+    ~~~ ;
+
+###############################################
+### Object Access Operators
+###############################################
+
+### Setvalobj
+### Puts an element (3rd) into a property of the object (2nd) under the given name (top)
+### C B (A) -> B
+Setvalobj:
+    ~~~
+    var name = arguments[1] || stack.pop();
+    var obj = stack.pop();
+    obj[name] = stack.pop();
+    stack.push(obj);
+    ~~~ ;
+
+### Setobjval
+### Puts an element (2nd) into a property of the object (3rd) under the given name (top)
+### C B (A) -> B
+Setobjval:
+    ~~~
+    var name = arguments[1] || stack.pop();
+    stack[stack.length-2][name] = stack.pop();
+    ~~~ ;
+
+### Getprop
+### Pushes the value of an object property with the given name
+### B (A) -> B C
+Getprop:
+    ~~~
+    var name = arguments[1] || stack.pop();
+    stack.push(stack[stack.length-1][name]);
+    ~~~ ;
+
+###############################################
+### Type questions
+###############################################
+
+### Null?
+### Pushes a truth value determining whether the top of the stack is null.
+### A -> A boolean
+Null?:
+    ~~~
+    stack.push(stack[stack.length-1] === null);
+    ~~~ ;
+
+### Typeof?
+### Pushes a truth value determining whether the type of the second element is equal to the string on top of the stack.
+### B A -> B (typeof B === A)
+Typeof?:
+    ~~~
+    stack.push((typeof stack[stack.length-2]) === stack.pop());
+    ~~~ ;
+
+### Quotation?
+### Pushes a truth value determining whether the top element is a quotation.
+### A -> A boolean
+Quotation?:
+    ~~~
+    stack.push(Array.isArray(stack[stack.length-1]));
+    ~~~ ;
+
+### String?
+### Pushes a truth value determining whether the top element is a string.
+### A -> A boolean
+String?:
+    ~~~
+    stack.push(typeof stack[stack.length-1] === 'string');
+    ~~~ ;
+
+### Number?
+### Pushes a truth value determining whether the top element is number.
+### A -> A boolean
+Number?:
+    ~~~
+    stack.push(typeof stack[stack.length-1] === 'number');
+    ~~~ ;
+
+### Boolean?
+### Pushes a truth value determining whether the top element is a boolean.
+### A -> A boolean
+Boolean?:
+    ~~~
+    stack.push(typeof stack[stack.length-1] === 'boolean');
+    ~~~ ;
+
+### Object?
+### Pushes a truth value determining whether the top element is an object.
+### A -> A boolean
+Object?:
+    ~~~
+    stack.push((typeof stack[stack.length-1] === 'object') && !Array.isArray(stack[stack.length-1]));
+    ~~~ ;
+
+###############################################
+### Object Utilities
+###############################################
+
+### Freeze
+### Freezes the object on top of the stack.
+### A -> A
+Freeze:
+    ~~~
+    Object.freeze(stack[stack.length-1]);
+    ~~~ ;
+
+### Frozen?
+### Pushes a truth value determining whether the object on top of the stack is frozen.
+### A -> A boolean
+Frozen?:
+    ~~~
+    stack.push(Object.isFrozen(stack[stack.length-1]));
+    ~~~ ;
+
+### Seal
+### Seals the object on top of the stack.
+### A -> A
+Seal:
+    ~~~
+    Object.seal(stack[stack.length-1]);
+    ~~~ ;
+
+### Sealed?
+### Pushes a truth value determining whether the object on top of the stack is sealed.
+### A -> A boolean
+Sealed?:
+    ~~~
+    stack.push(Object.isFrozen(stack[stack.length-1]));
+    ~~~ ;
+
+### Stagnate
+### Prevents the extension of the object on top of the stack.
+### A -> A
+Stagnate:
+    ~~~
+    Object.preventExtensions(stack[stack.length-1]);
+    ~~~ ;
+
+### Stagnant?
+### Pushes a truth value determining whether the object on top of the stack is extensible.
+### A -> A boolean
+Stagnant?:
+    ~~~
+    stack.push(Object.isExtensible(stack[stack.length-1]));
+    ~~~ ;
+
+###############################################
+### Collection Utilities
+###############################################
+
+### Empty?
+### Pushes a truth value indicating whether the collection on top of the stack is empty.
+### A -> A boolean
+Empty?:
+    ~~~
+    stack.push(stack[stack.length-1].length === 0);
+    ~~~ ;
+
+### In?
+### Pushes a truth value indicating whether the collection on top of the stack contains the object below it.
+### B A -> B A boolean
+In?:
+    ~~~
+    stack.push(stack[stack.length-1].indexOf(stack[stack.length-2]) !== -1);
+    ~~~ ;
+
+### Has?
+### Pushes a truth value indicating whether the collection second from the top contains the object above it.
+### B A -> B A boolean
+Has?:
+    ~~~
+    stack.push(stack[stack.length-2].indexOf(stack[stack.length-1]) !== -1);
+    ~~~ ;
+
+### Where?
+### Pushes the index at which the object on top of the stack is located in the collection below it.
+### B A -> B A number
+Where?:
+    ~~~
+    stack.push(stack[stack.length-2].indexOf(stack[stack.length-1]));
+    ~~~ ;
+
+### Slice
+### Pushes a slice of the collection third on the stack, using the top two elements as indices. Does not modify the collection.
+### C B A -> C D
+Slice:
+    ~~~
+    var end = stack.pop();
+    var begin = stack.pop();
+    stack.push(stack[stack.length-1].slice(begin, end));
+    ~~~ ;
+
+### SliceFrom
+### Pushes a slice of the collection second on the stack, using the top element as the starting index. Does not modify the collection.
+### B A -> B C
+Slice-from:
+    ~~~
+    stack.push(stack[stack.length-2].slice(stack.pop()));
+    ~~~ ;
+
+### Cut
+### Pushes a cut from the quotation third on the stack. Second on the stack is the start index, top is the number to cut. Modifies the original collection.
+### C B A -> C D
+Cut:
+    ~~~
+    var ind = stack.pop();
+    var count = stack.pop();
+    stack.push(stack[stack.length-1].splice(ind, count));
+    ~~~ ;
+
+### Insert
+### Inserts the item on top of the stack into the quotation 3rd on the stack at the index specified by the 2nd stack item.
+### C B A -> C
+Insert:
+    ~~~
+    var item = stack.pop();
+    var ind = stack.pop();
+    stack[stack.length-1].splice(ind, 0, item);
+    ~~~ ;
+
+### Splice
+### Inserts the elements from the quotation on top of the stack into the quotation 3rd on the stack at the index specified by the 2nd stack item.
+### C B A -> C
+Splice:
+    ~~~
+    var item = stack.pop();
+    var ind = stack.pop();
+    var dest = stack[stack.length-1];
+    dest.splice.apply(dest, [ind, 0].concat(item));
+    ~~~ ;
+
+### Reverse
+### Reverses the collection on top of the stack.
+### A -> A
+Reverse:
+    ~~~
+    stack[stack.length-1].reverse();
+    ~~~ ;
+
+### Sort
+### Sorts the collection on top of the stack in place.
+### A -> A
+Sort:
+    ~~~
+    stack[stack.length-1].sort();
+    ~~~ ;
+
+###############################################
+### Branching operators
+###############################################
+
+### Case
+### Performs case matching on the subquotations of the quotation on top of the stack, using the element below it as an index.
+### B [...[B [A]]...] -> A
+Case:
+    ~~~
+    var list = stack.pop();
+    var ind = stack.pop();
+    for (var i = 0; i < list.length; i++) {
+        if (list[i][0] === ind) {
+            exec(list[i][1], stack);
+            break;
+        }
+    }
+    ~~~ ;
+
+### Branch
+### If the 3rd item on the stack is true, executes the 2nd item on the stack, else executes the top item.
+### C [B] [A] -> (B or A)
+Branch:
+    ~~~
+    var qfalse = stack.pop();
+    var qtrue = stack.pop();
+    if (stack.pop()) {
+        exec(qtrue, stack);
+    } else {
+        exec(qfalse, stack);
+    }
+    ~~~ ;
+
+### If
+### If the 2nd item on the stack evaluates to true, executes the top item.
+### [B] [A] -> (A or )
+If:
+    ~~~
+    var qtrue = stack.pop();
+    exec(stack.pop(), stack);
+    if (stack.pop()) {
+        exec(qtrue, stack);
+    }
+    ~~~ ;
+
+### If-else
+### If the 3rd items on the stack evaluates to true, executes the 2nd item on the stack, else executes the top item.
+### [C] [B] [A] -> (B or A)
+If-else:
+    ~~~
+    var qfalse = stack.pop();
+    var qtrue = stack.pop();
+    exec(stack.pop(), stack);
+    if (stack.pop()) {
+        exec(qtrue, stack);
+    } else {
+        exec(qfalse, stack);
+    }
+    ~~~ ;
+
+### Cond
+### Tries evaluating the first item in each sublist of the quotation on the stack. If it is true, executes the second item and quits. If no item is executed, the last item in the list is exectued.
+### [...[[C] [B]]... [A]] -> (B or A)
+Cond:
+    ~~~
+    var list = stack.pop();
+    for (var i = 0; i < list.length - 1; i++) {
+        exec(list[i][0], stack);
+        if (stack.pop()) {
+            exec(list[i][1], stack);
+            return;
+        }
+    }
+    exec(list[list.length-1], stack);
+    ~~~ ;
+
+###############################################
+### Repetition operators
+###############################################
+
+### While
+### Continues executing the top item on the stack until the second item evaluates to false.
+### [B] [A] -> A A A ...
+While:
+    ~~~
+    var iter = stack.pop();
+    var cond = stack.pop();
+    exec(cond, stack);
+    while (stack.pop()) {
+        exec(iter, stack);
+        exec(cond, stack);
+    }
+    ~~~ ;
+
+### Linrec
+### If the fourth item on the stack evaluates to true, executes the third item on the stack, otherwise it executes the second item, recurses, then executes the top item.
+### [D] [C] [B] [A] -> B B B ... A A A C
+Linrec:
+    ~~~
+    var p2 = stack.pop();
+    var p1 = stack.pop();
+    var fin = stack.pop();
+    var cond = stack.pop();
+    var count = 0;
+    exec(cond, stack);
+    while (!stack.pop()) {
+        exec(p1, stack);
+        exec(cond, stack);
+        count++;
+    }
+    for (var i = 0; i < count; i++) {
+        exec(p2, stack);
+    }
+    exec(fin, stack);
+    ~~~ ;
+
+### Tailrec
+### If the third item on the stack evaluates to true, executes the second item on the stack, otherwise it executes the top item and recurses.
+### [C] [B] [A] -> A A A ... B
+Tailrec:
+    ~~~
+    var rec = stack.pop();
+    var fin = stack.pop();
+    var cond = stack.pop();
+    exec(cond, stack);
+    while (!stack.pop()) {
+        exec(rec, stack);
+        exec(cond, stack);
+    }
+    exec(fin, stack);
+    ~~~ ;
+
+### Genrec
+### If the fourth item on the stack evaluates to true, executes the third item on the stack, otherwise it executes the second item,  then executes the top item.
+### [D] [C] [B] [A] -> B B B B ... [[D] [C] [B] [A] genrec] ... A A A A C
+Genrec:
+    ~~~
+    var p2 = stack.pop();
+    var p1 = stack.pop();
+    var fin = stack.pop();
+    var cond = stack.pop();
+    exec(cond, stack);
+    while (!stack.pop()) {
+        exec(p1, stack);
+        stack.push([cond, fin, p1, p2, $0.Genrec]);
+        exec(p2, stack);
+    }
+    exec(fin, stack);
+    ~~~ ;
+
+### Step
+### Executes the quotation on top of the stack for each item in the quotation below it.
+### [B] [A] -> B1 A B2 A B3 A ...
+Step:
+    ~~~
+    var iter = stack.pop();
+    var list = stack.pop();
+    for (var i = 0; i < list.length; i++) {
+        stack.push(list[i]);
+        exec(iter, stack);
+    }
+    ~~~ ;
+
+### Fold
+### Starting with the value of the second item on the stack, it executes the quotation on top of the stack for each item in the third element.
+### [C] B [A] -> D
+Fold:
+    ~~~
+    var iter = stack.pop();
+    var init = stack.pop();
+    var list = stack.pop();
+    stack.push(init);
+    for (var i = 0; i < list.length; i++) {
+        stack.push(list[i]);
+        exec(iter, stack);
+    }
+    ~~~ ;
+
+### Map
+### Executes the top quotation for each member of the quotation below it, modifying the original collection with the result.
+### [B] [A] -> [C]
+Map:
+    ~~~
+    var iter = stack.pop();
+    var list = stack.pop();
+    for (var i = 0; i < list.length; i++) {
+        stack.push(list[i]);
+        exec(iter, stack);
+        list[i] = stack.pop();
+    }
+    stack.push(list);
+    ~~~ ;
+
+### Times
+### Executes the top quotation by the number of times specified by the element below it.
+### B [A] -> A A A ...
+Times:
+    ~~~
+    var iter = stack.pop();
+    var num = stack.pop();
+    for (var i = 0; i < num; i++) {
+        exec(iter, stack);
+    }
     ~~~ ;

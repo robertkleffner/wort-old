@@ -260,10 +260,5 @@ describe('#std', function() {
         std.empty$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
-
-        stack = [[2,3],1];
-        std.truncate(stack);
-        stack.should.have.length(1);
-        stack[0].should.have.length(1);
     });
 });
