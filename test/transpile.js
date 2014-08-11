@@ -56,7 +56,7 @@ describe('#transpile', function() {
 
     it('should emit built in functions', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Test: dup;'), 'hodor')), transpile.targets.BROWSER);
-        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstd.dup(stack);\n};\nreturn $0;\n})();\n');
+        res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstd.Dup(stack);\n};\nreturn $0;\n})();\n');
     });
 
     it('should emit property accessors', function() {
@@ -79,6 +79,6 @@ describe('#transpile', function() {
         res.should.equal('var hodor = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\nhodor.Main([]);\n');
 
         res = transpile.transpile(s.analyze(p.parse(l.lex('Main: dup;'), 'hodor')), transpile.targets.NODE);
-        res.should.equal('var std = require("wort");\nvar hodor = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstd.dup(stack);\n};\nreturn $0;\n})();\nhodor.Main([]);\n');
+        res.should.equal('var std = require("wort");\nvar hodor = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstd.Dup(stack);\n};\nreturn $0;\n})();\nhodor.Main([]);\n');
     });
 });

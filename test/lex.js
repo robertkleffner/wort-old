@@ -128,7 +128,7 @@ describe("#lex", function() {
     });
 
     it('should emit identifiers', function() {
-        var res = lex.lex('import ho_dor ho.dor ho?dor');
+        var res = lex.lex('import ho-dor ho.dor ho?dor');
         res.should.have.length(4);
         res[0].type.should.equal(lex.types.WORD);
         res[1].type.should.equal(lex.types.WORD);

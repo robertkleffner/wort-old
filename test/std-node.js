@@ -1,27 +1,20 @@
 var should = require('chai').should(),
-    std = require('../lib/std-node');
+    std = require('../lib/std.wort.js');
 
 describe('#std', function() {
     it('should annihilate the stack', function() {
         var stack = [];
-        std.exec([2, "hello"], stack);
+        stack.push(2, "hello");
         stack.should.have.length(2);
 
-        std.annihilate(stack);
+        std.Annihilate(stack);
         stack.should.have.length(0);
-    });
-
-    it('should execute a quotation', function() {
-        var stack = [];
-        std.exec([2, "hello", function(stack) { stack.pop(); }], stack);
-        stack.should.have.length(1);
-        stack[0].should.equal(2);
     });
 
     it('should push a null value on the stack', function() {
         var stack = [];
 
-        std.null(stack);
+        std.Null(stack);
         stack.should.have.length(1);
         should.not.exist(stack[0]);
     });
@@ -29,8 +22,8 @@ describe('#std', function() {
     it('should push boolean values on the stack', function() {
         var stack = [];
 
-        std.true(stack);
-        std.false(stack);
+        std.True(stack);
+        std.False(stack);
         stack.should.have.length(2);
         stack[0].should.equal(true);
         stack[1].should.equal(false);
@@ -39,46 +32,46 @@ describe('#std', function() {
     it('should work with the eight basic combinators', function() {
         var stack = [2];
 
-        std.zap(stack);
+        std.Zap(stack);
         stack.should.have.length(0);
 
         stack = [2];
-        std.dup(stack);
+        std.Dup(stack);
         stack.should.have.length(2);
         stack[0].should.equal(stack[1]);
 
         stack = [2,3];
-        std.swap(stack);
+        std.Swap(stack);
         stack[0].should.equal(3);
         stack[1].should.equal(2);
 
         stack = [[2],[3]];
-        std.cat(stack);
+        std.Cat(stack);
         stack.should.have.length(1);
         stack[0].should.have.length(2);
         stack[0][0].should.equal(2);
         stack[0][1].should.equal(3);
 
         stack = [2, [3]];
-        std.cons(stack);
+        std.Cons(stack);
         stack.should.have.length(1);
         stack[0].should.have.length(2);
         stack[0][0].should.equal(2);
         stack[0][1].should.equal(3);
 
         stack = [2];
-        std.unit(stack);
+        std.Unit(stack);
         stack.should.have.length(1);
         stack[0].should.have.length(1);
         stack[0][0].should.equal(2);
 
         stack = [[2]];
-        std.i(stack);
+        std.I(stack);
         stack.should.have.length(1);
         stack[0].should.equal(2);
 
         stack = [3, [4]];
-        std.dip(stack);
+        std.Dip(stack);
         stack.should.have.length(2);
         stack[0].should.equal(4);
         stack[1].should.equal(3);
@@ -86,178 +79,178 @@ describe('#std', function() {
 
     it('should perform arithmetic', function() {
         var stack = [1,2];
-        std.add(stack);
+        std.Add(stack);
         stack[0].should.equal(3);
 
         stack = [4,1];
-        std.sub(stack);
+        std.Sub(stack);
         stack[0].should.equal(3);
 
         stack = [2,5];
-        std.mul(stack);
+        std.Mul(stack);
         stack[0].should.equal(10);
 
         stack = [4,2];
-        std.div(stack);
+        std.Div(stack);
         stack[0].should.equal(2);
 
         stack = [5,3];
-        std.rem(stack);
+        std.Rem(stack);
         stack[0].should.equal(2);
 
         stack = [4];
-        std.inc(stack);
+        std.Inc(stack);
         stack[0].should.equal(5);
 
         stack = [4];
-        std.dec(stack);
+        std.Dec(stack);
         stack[0].should.equal(3);
 
         stack = [3];
-        std.neg(stack);
+        std.Neg(stack);
         stack[0].should.equal(-3);
     });
 
     it('should perform valid bitwise arithmetic', function() {
         var stack = [2];
-        std.complement(stack);
+        std.Complement(stack);
         stack[0].should.equal(-3);
 
         stack = [2,2,4,2];
-        std.band(stack);
+        std.Band(stack);
         stack[2].should.equal(0);
-        std.zap(stack);
-        std.band(stack);
+        std.Zap(stack);
+        std.Band(stack);
         stack[0].should.equal(2);
 
         stack = [1,4];
-        std.bor(stack);
+        std.Bor(stack);
         stack[0].should.equal(5);
 
         stack = [3, 1];
-        std.xor(stack);
+        std.Xor(stack);
         stack[0].should.equal(2);
 
         stack = [2,1];
-        std.shl(stack);
+        std.Shl(stack);
         stack[0].should.equal(4);
 
         stack = [-4,1];
-        std.shr(stack);
+        std.Shr(stack);
         stack[0].should.equal(-2);
 
         stack = [-4,1];
-        std.shr_u(stack);
+        std.Shr_u(stack);
         stack[0].should.equal(2147483646);
     });
 
     it('should perform valid boolean logic', function() {
         var stack = [true,false,true,true];
-        std.and(stack);
+        std.And(stack);
         stack[2].should.equal(true);
-        std.zap(stack);
-        std.and(stack);
+        std.Zap(stack);
+        std.And(stack);
         stack[0].should.equal(false);
 
         var stack = [true,false,false,false];
-        std.or(stack);
+        std.Or(stack);
         stack[2].should.equal(false);
-        std.zap(stack);
-        std.or(stack);
+        std.Zap(stack);
+        std.Or(stack);
         stack[0].should.equal(true);
 
         var stack = [false];
-        std.not(stack);
+        std.Not(stack);
         stack[0].should.equal(true);
     });
 
     it('should do object access correctly', function() {
         var stack = [2, {}, "hodor"];
-        std.setvalobj(stack);
+        std.Setvalobj(stack);
         stack.should.have.length(1);
         stack[0].hodor.should.equal(2);
 
         stack = [{}, 2, "hodor"];
-        std.setobjval(stack);
+        std.Setobjval(stack);
         stack.should.have.length(1);
         stack[0].hodor.should.equal(2);
 
         stack = [{hodor: 2}, "hodor"];
-        std.getprop(stack);
+        std.Getprop(stack);
         stack.should.have.length(2);
         stack[1].should.equal(2);
     });
 
     it('should answer type questions correctly', function() {
         var stack = [null];
-        std.null$(stack);
+        std.Null$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
 
-        var stack = [true, 'boolean'];
-        std.typeof$(stack);
-        stack.should.have.length(3);
-        stack[2].should.equal(true);
+        stack = [true, 'boolean'];
+        std.Typeof$(stack);
+        stack.should.have.length(2);
+        stack[1].should.equal(true);
 
         stack = [[2]];
-        std.quotation$(stack);
+        std.Quotation$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
 
         stack = ['hodor'];
-        std.string$(stack);
+        std.String$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
 
         stack = [2];
-        std.number$(stack);
+        std.Number$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
 
         stack = [false];
-        std.boolean$(stack);
+        std.Boolean$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
 
         stack = [{}];
-        std.object$(stack);
+        std.Object$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
 
         stack = [[]];
-        std.object$(stack);
+        std.Object$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(false);
     });
 
     it('should perform object utilities correctly', function() {
         var stack = [{}];
-        std.freeze(stack);
-        std.frozen$(stack);
+        std.Freeze(stack);
+        std.Frozen$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
 
         stack = [{}];
-        std.seal(stack);
-        std.sealed$(stack);
+        std.Seal(stack);
+        std.Sealed$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
 
         stack = [{}];
-        std.stagnate(stack);
-        std.stagnant$(stack);
+        std.Stagnate(stack);
+        std.Stagnant$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
 
-        std.zap(stack);
-        std.extensible$(stack);
+        std.Zap(stack);
+        std.Extensible$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(false);
     });
 
     it('should perform collection utilities correctly', function() {
         var stack = [[]];
-        std.empty$(stack);
+        std.Empty$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
     });

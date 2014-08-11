@@ -268,10 +268,10 @@ Shr:
     var top = stack.pop(); stack.push(stack.pop() >> top);
     ~~~ ;
 
-### Shr_u
+### Shr-u
 ### Pushes the second element shifted right by the top element. Sign is not preserved.
 ### B A -> (B>>>A)
-Shr_u:
+Shr-u:
     ~~~
     var top = stack.pop(); stack.push(stack.pop() >>> top);
     ~~~ ;
@@ -285,7 +285,8 @@ Shr_u:
 ### B A -> (B&&A)
 And:
     ~~~
-    stack.push(stack.pop() && stack.pop());
+    var top = stack.pop();
+    stack.push(stack.pop() && top);
     ~~~ ;
 
 ### Or
@@ -293,7 +294,8 @@ And:
 ### B A -> (B||A)
 Or:
     ~~~
-    stack.push(stack.pop() || stack.pop());
+    var top = stack.pop();
+    stack.push(stack.pop() || top);
     ~~~ ;
 
 ### Not
@@ -409,6 +411,14 @@ Getprop:
 ### Type questions
 ###############################################
 
+### Typeof
+### Pushes a string representing the type of the element on top of the stack.
+### A -> A string
+Typeof:
+    ~~~
+    stack.push(typeof stack[stack.length-1]);
+    ~~~ ;
+
 ### Null?
 ### Pushes a truth value determining whether the top of the stack is null.
 ### A -> A boolean
@@ -510,9 +520,17 @@ Stagnate:
     ~~~ ;
 
 ### Stagnant?
-### Pushes a truth value determining whether the object on top of the stack is extensible.
+### Pushes a truth value determining whether the object on top of the stack is not extensible.
 ### A -> A boolean
 Stagnant?:
+    ~~~
+    stack.push(Object.isExtensible(stack[stack.length-1]) === false);
+    ~~~ ;
+
+### Extensible?
+### Pushes a truth value determining whether the object on top of the stack is extensible.
+### A -> A boolean
+Extensible?:
     ~~~
     stack.push(Object.isExtensible(stack[stack.length-1]));
     ~~~ ;
@@ -821,4 +839,109 @@ Times:
     for (var i = 0; i < num; i++) {
         exec(iter, stack);
     }
+    ~~~ ;
+
+### Filter
+### Creates a new quotation from elements in the second collection on the stack which pass the condition on top of the stack.
+### [B] [A] -> [C]
+Filter:
+    ~~~
+    var cond = stack.pop();
+    var list = stack.pop();
+    var filtered = [];
+    for (var i = 0; i < list.length; i++) {
+        stack.push(list[i]);
+        exec(cond, stack);
+        if (stack.pop()) {
+            filtered.push(list[i]);
+        }
+    }
+    stack.push(filtered);
+    ~~~ ;
+
+### Split
+### Uses the condition quotation on top of the stack to split the quotation below it into two separate quotations.
+### [B] [A] -> [C] [D]
+Split:
+    ~~~
+    var cond = stack.pop();
+    var list = stack.pop();
+    var qtrue = [], qfalse = [];
+    for (var i = 0; i < list.length; i++) {
+        stack.push(list[i]);
+        exec(cond, stack);
+        if (stack.pop()) {
+            qtrue.push(list[i]);
+        } else {
+            qfalse.push(list[i]);
+        }
+    }
+    stack.push(qtrue);
+    stack.push(qfalse);
+    ~~~ ;
+
+###############################################
+### Stack Utilities
+###############################################
+
+### Annihilate
+### Empties the current stack.
+### ... ->
+Annihilate:
+    ~~~
+    stack.length = 0;
+    ~~~ ;
+
+### Gather
+### Takes the number from the top of the stack and creates a quotation of that size containing elements from the stack.
+### Z ... C B A -> Z ... [... C B]
+Gather:
+    ~~~
+    var amount = stack.pop();
+    stack.push(stack.splice(-amount, amount));
+    ~~~ ;
+
+### Spread
+### Takes the quotation on top of the stack and puts all its elements onto the stack.
+### Z [Y ... A] -> Z Y ... A
+Spread:
+    ~~~
+    var top = stack.pop();
+    stack = stack.concat(top);
+    ~~~ ;
+
+### Substitute
+### Takes the quotation on top of the stack and makes it the stack.
+### Z [Y ... A] -> Y ... A
+Substitute:
+    ~~~
+    stack = stack.pop();
+    ~~~ ;
+
+###############################################
+### Miscellaneous
+###############################################
+
+### To-string
+### Pushes the string representation of the top element of the stack.
+### A -> A string
+To-string:
+    ~~~
+    stack.push(stack[stack.length-1].toString());
+    ~~~ ;
+
+### Print
+### Prints the string representation of the top element of the stack.
+### A -> A
+Print:
+    ~~~
+    console.log(stack[stack.length-1]);
+    ~~~ ;
+
+### Printz
+### Prints the item on top of the stack and pops it.
+### A ->
+Printz:
+    ~~~
+    console.log(stack.pop());
     ~~~ ;
