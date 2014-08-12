@@ -1,6 +1,8 @@
+###############################################
 ### Module: std
-### The standard library for the Wort programming language.
-module std;
+### Author: Rob Kleffner
+### Description: The standard library for the Wort programming language.
+###############################################
 
 ### Exec
 ### Main interpreter function, prime candidate for optimization!
