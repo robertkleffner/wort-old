@@ -253,5 +253,193 @@ describe('#std', function() {
         std.Empty$(stack);
         stack.should.have.length(2);
         stack[1].should.equal(true);
+
+        stack = [2, [2]];
+        std.In$(stack);
+        stack.should.have.length(3);
+        stack[2].should.equal(true);
+
+        stack = [[2], 2];
+        std.Has$(stack);
+        stack.should.have.length(3);
+        stack[2].should.equal(true);
+
+        stack = [[2, 3], 3];
+        std.Where$(stack);
+        stack.should.have.length(3);
+        stack[2].should.equal(1);
+
+        stack = [[1, 2, 3, 4], 1, 3];
+        std.Slice(stack);
+        stack.should.have.length(2);
+        stack[1].should.have.length(2);
+
+        stack = [[1, 2, 3, 4], 1];
+        std.Slice_from(stack);
+        stack.should.have.length(2);
+        stack[1].should.have.length(3);
+
+        stack = [[1, 2, 3, 4], 1, 2];
+        std.Cut(stack);
+        stack.should.have.length(2);
+        stack[0].should.have.length(2);
+        stack[1].should.have.length(2);
+
+        stack = [[1, 2, 4], 2, 3];
+        std.Insert(stack);
+        stack.should.have.length(1);
+        stack[0].should.have.length(4);
+        stack[0][2].should.equal(3);
+
+        stack = [[1, 2, 5], 2, [3, 4]];
+        std.Splice(stack);
+        stack.should.have.length(1);
+        stack[0].should.have.length(5);
+
+        stack = [[1, 2]];
+        std.Reverse(stack);
+        stack.should.have.length(1);
+        stack[0].should.have.length(2);
+        stack[0][0].should.equal(2);
+        stack[0][1].should.equal(1);
+
+        stack = [[2, 3, 1]];
+        std.Sort(stack);
+        stack.should.have.length(1);
+        stack[0].should.have.length(3);
+        stack[0][0].should.equal(1);
+        stack[0][1].should.equal(2);
+        stack[0][2].should.equal(3);
+    });
+
+    it('should execute branching operators correctly', function() {
+        var stack = [2, [[1, [2, 3]], [2, [4, 5]], [3, [6, 7]]]];
+        std.Case(stack);
+        stack.should.have.length(2);
+        stack[0].should.equal(4);
+        stack[1].should.equal(5);
+
+        stack = [true, [2], [3]];
+        std.Branch(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(2);
+
+        stack = [false, [2], [3]];
+        std.Branch(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(3);
+
+        stack = [[true], [2]];
+        std.If(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(2);
+
+        stack = [[false], [2]];
+        std.If(stack);
+        stack.should.have.length(0);
+
+        stack = [[true], [2], [3]];
+        std.If_else(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(2);
+
+        stack = [[false], [2], [3]];
+        std.If_else(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(3);
+
+        stack = [ [ [[false], [1]], [[true], [2]], [3] ] ];
+        std.Cond(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(2);
+
+        stack = [ [ [[false], [1]], [[false], [2]], [3] ] ];
+        std.Cond(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(3);
+    });
+
+    it('should execute repetition operators properly', function() {
+        var stack = [ 3, [std.Dup, 0, std.Greater], [1, std.Sub]];
+        std.While(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(0);
+
+        stack = [5, [std.Dup, 0, std.Same], [std.Inc], [std.Dup, std.Dec], [std.Mul]];
+        std.Linrec(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(120);
+
+        stack = [ 3, [std.Dup, 0, std.Lesseq], ['hello'], [1, std.Sub]];
+        std.Tailrec(stack);
+        stack.should.have.length(2);
+        stack[0].should.equal(0);
+        stack[1].should.equal('hello');
+
+        stack = [ 3, [std.Dup, 3, std.Same], [std.Inc], [std.Dup, std.Dec], [std.Mul]];
+        std.Genrec(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(4);
+
+        stack = [[1, 2, 3, 4], [1, std.Add]];
+        std.Step(stack);
+        stack.should.have.length(4);
+        stack[0].should.equal(2);
+        stack[1].should.equal(3);
+        stack[2].should.equal(4);
+        stack[3].should.equal(5);
+
+        stack = [[1, 2, 3, 4], 0, [std.Add]];
+        std.Fold(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(10);
+
+        stack = [[1, 2, 3, 4], [1, std.Add]];
+        std.Map(stack);
+        stack.should.have.length(1);
+        stack[0].should.have.length(4);
+        stack[0][0].should.equal(2);
+        stack[0][1].should.equal(3);
+        stack[0][2].should.equal(4);
+        stack[0][3].should.equal(5);
+
+        stack = [10, [1]];
+        std.Times(stack);
+        stack.should.have.length(10);
+
+        stack = [[2, 3, 2, 3], [std.Dup, 2, std.Eq]];
+        std.Filter(stack);
+        stack.should.have.length(1);
+        stack[0].should.have.length(2);
+        stack[0][0].should.equal(2);
+
+        stack = [[2, 3, 2, 3], [std.Dup, 2, std.Eq]];
+        std.Split(stack);
+        stack.should.have.length(2);
+        stack[0].should.have.length(2);
+        stack[0][0].should.equal(2);
+        stack[1].should.have.length(2);
+        stack[1][0].should.equal(3);
+    });
+
+    it('should perform stack utilities correctly', function() {
+        var stack = [1];
+        std.Annihilate(stack);
+        stack.should.have.length(0);
+
+        stack = [0, 1, 2, 3, 3];
+        std.Gather(stack);
+        stack.should.have.length(2);
+        stack[0].should.equal(0);
+        stack[1].should.have.length(3);
+
+        stack = [0, [1, 2, 3]];
+        std.Spread(stack);
+        stack.should.have.length(4);
+
+        stack = [0, [1]];
+        std.Substitute(stack);
+        stack.should.have.length(1);
+        stack[0].should.equal(1);
     });
 });

@@ -312,66 +312,70 @@ Not:
 
 ### Same
 ### Pushes a truth value comparing the top two elements using ==
-### B A -> B A (B==A)
+### B A -> (B==A)
 Same:
     ~~~
-    stack.push(stack[stack.length-2] == stack[stack.length-1]);
+    stack.push(stack.pop() == stack.pop());
     ~~~ ;
 
 ### Notsame
 ### Pushes a truth value comparing the top two elements using !=
-### B A -> B A (B!=A)
+### B A -> (B!=A)
 Notsame:
     ~~~
-    stack.push(stack[stack.length-2] != stack[stack.length-1]);
+    stack.push(stack.pop() != stack.pop());
     ~~~ ;
 
 ### Eq
 ### Pushes a truth value comparing the top two elements using ===
-### B A -> B A (B===A)
+### B A -> (B===A)
 Eq:
     ~~~
-    stack.push(stack[stack.length-2] === stack[stack.length-1]);
+    stack.push(stack.pop() === stack.pop());
     ~~~ ;
 
 ### Noteq
 ### Pushes a truth value comparing the top two elements using !==
-### B A -> B A (B!==A)
+### B A -> (B!==A)
 Noteq:
     ~~~
-    stack.push(stack[stack.length-2] !== stack[stack.length-1]);
+    stack.push(stack.pop() !== stack.pop());
     ~~~ ;
 
 ### Less
 ### Pushes a truth value determining whether the second element is < the top element.
-### B A -> B A (B<A)
+### B A -> (B<A)
 Less:
     ~~~
-    stack.push(stack[stack.length-2] < stack[stack.length-1]);
+    var top = stack.pop();
+    stack.push(stack.pop() < top);
     ~~~ ;
 
 ### Lesseq
 ### Pushes a truth value determining whether the second element is <= the top element.
-### B A -> B A (B<=A)
+### B A -> (B<=A)
 Lesseq:
     ~~~
-    stack.push(stack[stack.length-2] <= stack[stack.length-1]);
+    var top = stack.pop();
+    stack.push(stack.pop() <= top);
     ~~~ ;
 
 ### Greater
 ### Pushes a truth value determining whether the second element is > the top element.
-### B A -> B A (B>A)
+### B A -> (B>A)
 Greater:
     ~~~
-    stack.push(stack[stack.length-2] > stack[stack.length-1]);
+    var top = stack.pop();
+    stack.push(stack.pop() > top);
     ~~~ ;
 
 ### Greatereq
 ### Pushes a truth value determining whether the second element is >= the top element.
-### B A -> B A (B>=A)
+### B A -> (B>=A)
 Greatereq:
     ~~~
-    stack.push(stack[stack.length-2] >= stack[stack.length-1]);
+    var top = stack.pop();
+    stack.push(stack.pop() >= top);
     ~~~ ;
 
 ###############################################
@@ -594,8 +598,8 @@ Slice-from:
 ### C B A -> C D
 Cut:
     ~~~
-    var ind = stack.pop();
     var count = stack.pop();
+    var ind = stack.pop();
     stack.push(stack[stack.length-1].splice(ind, count));
     ~~~ ;
 
@@ -732,7 +736,7 @@ While:
 
 ### Linrec
 ### If the fourth item on the stack evaluates to true, executes the third item on the stack, otherwise it executes the second item, recurses, then executes the top item.
-### [D] [C] [B] [A] -> B B B ... A A A C
+### [D] [C] [B] [A] -> B B B ... C ... A A A
 Linrec:
     ~~~
     var p2 = stack.pop();
@@ -741,15 +745,15 @@ Linrec:
     var cond = stack.pop();
     var count = 0;
     exec(cond, stack);
-    while (!stack.pop()) {
+    while (stack.pop() === false) {
         exec(p1, stack);
         exec(cond, stack);
         count++;
     }
+    exec(fin, stack);
     for (var i = 0; i < count; i++) {
         exec(p2, stack);
     }
-    exec(fin, stack);
     ~~~ ;
 
 ### Tailrec
@@ -761,7 +765,7 @@ Tailrec:
     var fin = stack.pop();
     var cond = stack.pop();
     exec(cond, stack);
-    while (!stack.pop()) {
+    while (stack.pop() === false) {
         exec(rec, stack);
         exec(cond, stack);
     }
@@ -778,12 +782,13 @@ Genrec:
     var fin = stack.pop();
     var cond = stack.pop();
     exec(cond, stack);
-    while (!stack.pop()) {
+    if (stack.pop() === false) {
         exec(p1, stack);
         stack.push([cond, fin, p1, p2, $0.Genrec]);
         exec(p2, stack);
+    } else {
+        exec(fin, stack);
     }
-    exec(fin, stack);
     ~~~ ;
 
 ### Step
@@ -853,7 +858,9 @@ Filter:
         stack.push(list[i]);
         exec(cond, stack);
         if (stack.pop()) {
-            filtered.push(list[i]);
+            filtered.push(stack.pop());
+        } else {
+            stack.pop();
         }
     }
     stack.push(filtered);
@@ -871,9 +878,9 @@ Split:
         stack.push(list[i]);
         exec(cond, stack);
         if (stack.pop()) {
-            qtrue.push(list[i]);
+            qtrue.push(stack.pop());
         } else {
-            qfalse.push(list[i]);
+            qfalse.push(stack.pop());
         }
     }
     stack.push(qtrue);
@@ -907,7 +914,7 @@ Gather:
 Spread:
     ~~~
     var top = stack.pop();
-    stack = stack.concat(top);
+    stack = stack.push.apply(stack, top);
     ~~~ ;
 
 ### Substitute
@@ -915,7 +922,9 @@ Spread:
 ### Z [Y ... A] -> Y ... A
 Substitute:
     ~~~
-    stack = stack.pop();
+    var sub = stack.pop();
+    stack.length = 0;
+    stack.push.apply(stack, sub);
     ~~~ ;
 
 ###############################################
