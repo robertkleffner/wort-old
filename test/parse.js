@@ -19,18 +19,9 @@ describe('#parse', function() {
         should.not.exist(res.err);
     });
 
-    it('should use the file name if no module declaration is supplied', function() {
+    it('should use the file name as the module name', function() {
         var res = parser.parse(lex.lex(''), 'hodor');
         res.name.should.equal('hodor');
-        res.requires.should.have.length(0);
-        res.definitions.should.have.length(0);
-        res.imports.should.have.length(0);
-        should.not.exist(res.err);
-    });
-
-    it('should parse input with only module declaration', function() {
-        var res = parser.parse(lex.lex('module test.hodor;'));
-        res.name.should.equal('test.hodor');
         res.requires.should.have.length(0);
         res.definitions.should.have.length(0);
         res.imports.should.have.length(0);

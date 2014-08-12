@@ -1,6 +1,6 @@
 {
   "name": "wort",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A JavaScript transpiler for the Wort programming language",
   "main": "lib/std-node.js",
   "bin": {
