@@ -1,4 +1,4 @@
-# Wort 0.1.2 Reference Manual
+# Wort 0.1.4 Reference Manual
 
 by Rob Kleffner
 
