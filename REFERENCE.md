@@ -74,6 +74,14 @@ can be a valid part of a Wort definition. More on inline JavaScript in a later s
 
 Wort does not have a concept of variables. This will be explained later when the execution model of Wort is described, but this is such a significant difference from the majority of popular programming languages that it is worth mentioning as its own separate subsection.
 
+#### Object Properties
+
+Wort has a special syntax for accessing the properties of JavaScript objects. If an object is on top of the stack, then the term `@propertyName` will push the value of that object's .propertyName field onto the top of the stack. The value may then be operated on and modified. If the value is a quotation or another object, changes to it will be reflected automatically. Other types must be manually reassigned to the object property to change it.
+
+There are two property setter syntaxes in Wort, `->propertyName` and `<-propertyName`. The first takes a value below the object on the stack and sets (top element).propertyName to be equal to it. The second syntax is its converse; that is, it takes the value on top of the stack and sets (second element).propertyName to be equal to it. So, if we wanted to set a rectangle object's height and width, we might do `{x: 0, y: 0, width: 0, height: 0} 100 <-width 50 <- height`. The first syntax `->` is useful for making object constructor definitions, while the latter syntax `<-` is most commonly used when modifying existing objects.
+
+All three special symbols are available as operators that take an extra string argument on top of the stack, which functions as the property name. This is done via JavaScript's square-bracket object property notation.
+
 ### Types
 
 Wort has a small number of basic types which are closely related to the underlying JavaScript types. This helps to make the transition between the two languages less abrupt. Wort's basic types are the *boolean*, *number*, *string*, *quotation*, *function*, and *object*. Booleans function like they do in JavaScript, and the same can be said for numbers (both integers and floating point numbers) and strings. Objects are just JavaScript objects, and functions are JavaScript functions.
@@ -112,7 +120,7 @@ Every term in Wort can be considered a function which takes exactly one argument
 
 Wort has no variables because this would confuse and clutter the explicit flow of data through out the language. Unfortunately this has a tendency to make certain tasks, mathematical formulas especially, rather unintuitive looking as they must be written in Reverse Polish notation. This style also makes long definitions cumbersome and hard to read, so lots of small, easy to comprehend definitions are encouraged instead of large sprawling God-functions.
 
-Because all Wort definitions are composable, there is no need to specify the order of evaluation nor list arguments. Calling a definition does not require any additional syntax then, i.e. there are no parentheses for a definition call, nor are there argument lists. If one wants to duplicate the top element on the stack, one writes `dup` instead of `dup()`. But it might help the transition to the composable style if one thinks of all functions as being called
+Because all Wort definitions are composable, there is no need to specify the order of evaluation nor list arguments. Calling a definition does not require any additional syntax then, i.e. there are no parentheses for a definition call, nor are there argument lists. If one wants to duplicate the top element on the stack, one writes `dup` instead of `dup()`. But it might help the transition to the composable style if one thinks of all functions as being called like so `func1(func2(func3(...)))`.
 
 ## Built-In Functions
 
@@ -122,9 +130,9 @@ Wort defines the following list of built-in functions in its Standard Library:
 - true, false
 - zap, dup, swap, cat, cons, unit, i, dip
 - neg
-- typeof, null$, typeof$, quotation$, string$, number$, boolean$, object$
-- freeze, frozen$, seal, sealed$, stagnate, stagnant$
-- empty$, in$, has$, where$, slice, slice-from, cut, insert, splice, reverse, sort
+- typeof, null?, typeof?, quotation?, string?, number?, boolean?, object?
+- freeze, frozen?, seal, sealed?, stagnate, stagnant?
+- empty?, in?, has?, where?, slice, slice-from, cut, insert, splice, reverse, sort
 - case, branch, if, if-else, cond
 - while, linrec, tailrec, genrec, step, fold, map, times, filter, split
 - annihilate, gather, spread, substitute
