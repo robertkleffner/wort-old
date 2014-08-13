@@ -12,12 +12,12 @@ describe('#semantics', function() {
     });
 
     it('should perform some simple conversions', function() {
-        var mod = semantics.analyze(parser.parse(lex.lex('Main: dup; priv: zap;')));
+        var mod = semantics.analyze(parser.parse(lex.lex('Main: dup; -priv: zap;')));
         mod.analysisErrors.should.have.length(0);
         mod.public.should.have.length(1);
         mod.private.should.have.length(1);
         mod.public[0].name.should.equal('Main');
-        mod.private[0].name.should.equal('priv');
+        mod.private[0].name.should.equal('_priv');
         mod.public[0].terms[0].type.should.equal(lex.types.BUILT_IN);
         mod.private[0].terms[0].type.should.equal(lex.types.BUILT_IN);
     });
@@ -34,8 +34,20 @@ describe('#semantics', function() {
         mod.analysisErrors[0].value.should.equal('Word "Main" is defined twice');
     });
 
+    it('should catch names replacing built in words', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('dup: 2;')));
+        mod.analysisErrors.should.have.length(1);
+        mod.analysisErrors[0].value.should.equal('"dup" is a reserved word and cannot be a definition name');
+    });
+
+    it('should not allow definition names to have periods', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('one.two: 2;')));
+        mod.analysisErrors.should.have.length(1);
+        mod.analysisErrors[0].value.should.equal('Definition names cannot contain periods');
+    });
+
     it('should strip question marks from names', function() {
-        var mod = semantics.analyze(parser.parse(lex.lex('main: null?;')));
+        var mod = semantics.analyze(parser.parse(lex.lex('-main: null?;')));
         mod.analysisErrors.should.have.length(0);
         mod.private[0].terms[0].value.should.equal('null$');
     });
@@ -60,24 +72,24 @@ describe('#semantics', function() {
     });
 
     it('should detect a public Main method if present', function() {
-        var mod = semantics.analyze(parser.parse(lex.lex('Main: 2;')));
+        var mod = semantics.analyze(parser.parse(lex.lex('main: 2;')));
         mod.analysisErrors.should.have.length(0);
         mod.hasMain.should.equal(true);
 
-        var mod = semantics.analyze(parser.parse(lex.lex('main: 2;')));
+        var mod = semantics.analyze(parser.parse(lex.lex('-main: 2;')));
         mod.analysisErrors.should.have.length(0);
         mod.hasMain.should.equal(false);
     });
 
-    it('should append a prefix to local public word calls', function() {
+    it('should mark local public word calls', function() {
         var mod = semantics.analyze(parser.parse(lex.lex('Test: 2; main: Test;')));
         mod.analysisErrors.should.have.length(0);
-        mod.definitions[1].terms[0].value.should.equal('$0.Test');
+        mod.definitions[1].terms[0].localPub.should.equal(true);
     });
 
     it('should analyze terms inside a quotation', function() {
         var mod = semantics.analyze(parser.parse(lex.lex('Test: 2; main: [Test];')));
         mod.analysisErrors.should.have.length(0);
-        mod.definitions[1].terms[0][0].value.should.equal('$0.Test');
+        mod.definitions[1].terms[0][0].localPub.should.equal(true);
     });
 });

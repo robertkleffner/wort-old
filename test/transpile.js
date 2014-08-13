@@ -21,9 +21,9 @@ describe('#transpile', function() {
     });
 
     it('should emit a public and private definition', function() {
-        var res = transpile.transpile(s.analyze(p.parse(l.lex('test: "hello"; Test: 2;'), 'hodor')));
-        res.should.equal('module.exports = (function() {\nvar $0 = {};\nfunction test(stack) {\nstack.push("hello");\n}\n' +
-            '$0.Test = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\n');
+        var res = transpile.transpile(s.analyze(p.parse(l.lex('-test: "hello"; test: 2;'), 'hodor')));
+        res.should.equal('module.exports = (function() {\nvar $0 = {};\nfunction _test(stack) {\nstack.push("hello");\n}\n' +
+            '$0.test = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\n');
     });
 
     it('should emit an object literal', function() {
@@ -38,7 +38,7 @@ describe('#transpile', function() {
 
     it('should emit operators', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Test: +;'), 'hodor')));
-        res.should.equal('module.exports = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstd.add(stack);\n};\nreturn $0;\n})();\n');
+        res.should.equal('module.exports = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstd.Add(stack);\n};\nreturn $0;\n})();\n');
     });
 
     it('should emit built in functions', function() {
@@ -48,12 +48,12 @@ describe('#transpile', function() {
 
     it('should emit property accessors', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Test: ->hodor;'), 'hodor')));
-        res.should.equal('module.exports = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstd.setvalobj(stack, "hodor");\n};\nreturn $0;\n})();\n');
+        res.should.equal('module.exports = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstd.Setvalobj(stack, "hodor");\n};\nreturn $0;\n})();\n');
     });
 
     it('should emit user defined words', function() {
-        var res = transpile.transpile(s.analyze(p.parse(l.lex('test: 2; Test: test;'), 'hodor')));
-        res.should.equal('module.exports = (function() {\nvar $0 = {};\nfunction test(stack) {\nstack.push(2);\n}\n$0.Test = function(stack) {\ntest(stack);\n};\nreturn $0;\n})();\n');
+        var res = transpile.transpile(s.analyze(p.parse(l.lex('-test: 2; test: -test;'), 'hodor')));
+        res.should.equal('module.exports = (function() {\nvar $0 = {};\nfunction _test(stack) {\nstack.push(2);\n}\n$0.test = function(stack) {\n_test(stack);\n};\nreturn $0;\n})();\n');
     });
 
     it('should emit quotations', function() {
@@ -61,8 +61,8 @@ describe('#transpile', function() {
         res.should.equal('module.exports = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstack.push([2]);\n};\nreturn $0;\n})();\n');
     });
 
-    it('should call public Main if present', function() {
-        var res = transpile.transpile(s.analyze(p.parse(l.lex('Main: 2;'), 'hodor')));
-        res.should.equal('var $1 = (function() {\nvar $0 = {};\n$0.Main = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\n$1.Main([]);\n');
+    it('should call public main if present', function() {
+        var res = transpile.transpile(s.analyze(p.parse(l.lex('main: 2;'), 'hodor')));
+        res.should.equal('var $1 = (function() {\nvar $0 = {};\n$0.main = function(stack) {\nstack.push(2);\n};\nreturn $0;\n})();\n$1.main([]);\n');
     });
 });

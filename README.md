@@ -29,11 +29,18 @@ node hodor.wort.js
 
 If you want your wort programs or modules to run in the browser, you can probably use the browserify tool on the output.
 
-## Hodor
+## Examples
 
 A variation on the typical `Hello, World!` program.
 
 ```
 # print a message to std out
-Main: "Hodor!" printz ;
+main: "Hodor!" printz ;
+```
+
+Sum a list of numbers using `fold`, a built in function.
+
+```
+# sum a list of numbers (prints 15)
+main: [1 2 3 4 5] 0 [+] fold;
 ```

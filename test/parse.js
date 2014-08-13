@@ -50,7 +50,16 @@ describe('#parse', function() {
         var res = parser.parse(lex.lex('main: hodor;'));
         should.not.exist(res.err);
         res.definitions[0].name.should.equal('main');
+    });
+
+    it('should differentiate public and private definitions', function() {
+        var res = parser.parse(lex.lex('public: 1;'));
         should.not.exist(res.err);
+        res.definitions[0].public.should.equal(true);
+
+        res = parser.parse(lex.lex('-private: 1;'));
+        should.not.exist(res.err);
+        res.definitions[0].public.should.equal(false);
     });
 
     it('should parse numbers as terms', function() {

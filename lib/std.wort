@@ -6,7 +6,7 @@
 
 ### Exec
 ### Main interpreter function, prime candidate for optimization!
-exec:
+-exec:
     ~~~
     var q = arguments[0], stack = arguments[1];
     for (var i = 0; i < q.length; i++) {
@@ -30,7 +30,7 @@ Null:
     stack.push(null);
     ~~~ ;
 
-### ### True
+### True
 ### Pushes the value 'true' onto the stack
 ### -> boolean
 True:
@@ -38,7 +38,7 @@ True:
     stack.push(true);
     ~~~ ;
 
-### ### False
+### False
 ### Pushes the value 'false' onto the stack
 ### -> boolean
 False:
@@ -655,7 +655,7 @@ Case:
     var ind = stack.pop();
     for (var i = 0; i < list.length; i++) {
         if (list[i][0] === ind) {
-            exec(list[i][1], stack);
+            _exec(list[i][1], stack);
             break;
         }
     }
@@ -669,9 +669,9 @@ Branch:
     var qfalse = stack.pop();
     var qtrue = stack.pop();
     if (stack.pop()) {
-        exec(qtrue, stack);
+        _exec(qtrue, stack);
     } else {
-        exec(qfalse, stack);
+        _exec(qfalse, stack);
     }
     ~~~ ;
 
@@ -681,9 +681,9 @@ Branch:
 If:
     ~~~
     var qtrue = stack.pop();
-    exec(stack.pop(), stack);
+    _exec(stack.pop(), stack);
     if (stack.pop()) {
-        exec(qtrue, stack);
+        _exec(qtrue, stack);
     }
     ~~~ ;
 
@@ -694,11 +694,11 @@ If-else:
     ~~~
     var qfalse = stack.pop();
     var qtrue = stack.pop();
-    exec(stack.pop(), stack);
+    _exec(stack.pop(), stack);
     if (stack.pop()) {
-        exec(qtrue, stack);
+        _exec(qtrue, stack);
     } else {
-        exec(qfalse, stack);
+        _exec(qfalse, stack);
     }
     ~~~ ;
 
@@ -709,13 +709,13 @@ Cond:
     ~~~
     var list = stack.pop();
     for (var i = 0; i < list.length - 1; i++) {
-        exec(list[i][0], stack);
+        _exec(list[i][0], stack);
         if (stack.pop()) {
-            exec(list[i][1], stack);
+            _exec(list[i][1], stack);
             return;
         }
     }
-    exec(list[list.length-1], stack);
+    _exec(list[list.length-1], stack);
     ~~~ ;
 
 ###############################################
@@ -729,10 +729,10 @@ While:
     ~~~
     var iter = stack.pop();
     var cond = stack.pop();
-    exec(cond, stack);
+    _exec(cond, stack);
     while (stack.pop()) {
-        exec(iter, stack);
-        exec(cond, stack);
+        _exec(iter, stack);
+        _exec(cond, stack);
     }
     ~~~ ;
 
@@ -746,15 +746,15 @@ Linrec:
     var fin = stack.pop();
     var cond = stack.pop();
     var count = 0;
-    exec(cond, stack);
+    _exec(cond, stack);
     while (stack.pop() === false) {
-        exec(p1, stack);
-        exec(cond, stack);
+        _exec(p1, stack);
+        _exec(cond, stack);
         count++;
     }
-    exec(fin, stack);
+    _exec(fin, stack);
     for (var i = 0; i < count; i++) {
-        exec(p2, stack);
+        _exec(p2, stack);
     }
     ~~~ ;
 
@@ -766,12 +766,12 @@ Tailrec:
     var rec = stack.pop();
     var fin = stack.pop();
     var cond = stack.pop();
-    exec(cond, stack);
+    _exec(cond, stack);
     while (stack.pop() === false) {
-        exec(rec, stack);
-        exec(cond, stack);
+        _exec(rec, stack);
+        _exec(cond, stack);
     }
-    exec(fin, stack);
+    _exec(fin, stack);
     ~~~ ;
 
 ### Genrec
@@ -783,13 +783,13 @@ Genrec:
     var p1 = stack.pop();
     var fin = stack.pop();
     var cond = stack.pop();
-    exec(cond, stack);
+    _exec(cond, stack);
     if (stack.pop() === false) {
-        exec(p1, stack);
+        _exec(p1, stack);
         stack.push([cond, fin, p1, p2, $0.Genrec]);
-        exec(p2, stack);
+        _exec(p2, stack);
     } else {
-        exec(fin, stack);
+        _exec(fin, stack);
     }
     ~~~ ;
 
@@ -802,7 +802,7 @@ Step:
     var list = stack.pop();
     for (var i = 0; i < list.length; i++) {
         stack.push(list[i]);
-        exec(iter, stack);
+        _exec(iter, stack);
     }
     ~~~ ;
 
@@ -817,7 +817,7 @@ Fold:
     stack.push(init);
     for (var i = 0; i < list.length; i++) {
         stack.push(list[i]);
-        exec(iter, stack);
+        _exec(iter, stack);
     }
     ~~~ ;
 
@@ -830,7 +830,7 @@ Map:
     var list = stack.pop();
     for (var i = 0; i < list.length; i++) {
         stack.push(list[i]);
-        exec(iter, stack);
+        _exec(iter, stack);
         list[i] = stack.pop();
     }
     stack.push(list);
@@ -844,7 +844,7 @@ Times:
     var iter = stack.pop();
     var num = stack.pop();
     for (var i = 0; i < num; i++) {
-        exec(iter, stack);
+        _exec(iter, stack);
     }
     ~~~ ;
 
@@ -858,7 +858,7 @@ Filter:
     var filtered = [];
     for (var i = 0; i < list.length; i++) {
         stack.push(list[i]);
-        exec(cond, stack);
+        _exec(cond, stack);
         if (stack.pop()) {
             filtered.push(stack.pop());
         } else {
@@ -878,7 +878,7 @@ Split:
     var qtrue = [], qfalse = [];
     for (var i = 0; i < list.length; i++) {
         stack.push(list[i]);
-        exec(cond, stack);
+        _exec(cond, stack);
         if (stack.pop()) {
             qtrue.push(stack.pop());
         } else {

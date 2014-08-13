@@ -128,11 +128,12 @@ describe("#lex", function() {
     });
 
     it('should emit identifiers', function() {
-        var res = lex.lex('import ho-dor ho.dor ho?dor');
-        res.should.have.length(4);
+        var res = lex.lex('import ho-dor ho.dor ho?dor -private');
+        res.should.have.length(5);
         res[0].type.should.equal(lex.types.WORD);
         res[1].type.should.equal(lex.types.WORD);
         res[2].type.should.equal(lex.types.WORD);
         res[3].type.should.equal(lex.types.WORD);
+        res[4].type.should.equal(lex.types.WORD);
     });
 });
