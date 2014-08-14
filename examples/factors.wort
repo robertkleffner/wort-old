@@ -6,7 +6,7 @@ rest: uncons swap zap;
 ### Generates a list of non-zero integers up to the number on top of the stack.
 ### A -> A [B]
 positive-to:
-    [dup > 0] [[]] [dup --] [cons] linrec
+    [dup 1 <] [[]] [dup --] [swap unit cat] linrec
     rest ;
 
 ### factors
