@@ -112,4 +112,13 @@ describe('#semantics', function() {
         mod.analysisErrors.should.have.length(1);
         mod.analysisErrors[0].value.should.equal('Shuffle variable "b" not found on left hand side of shuffle')
     });
+
+    it('should cleanse all built in words', function() {
+        var mod;
+        for (var i = 0; i < semantics.builtIns.length; i++) {
+            mod = semantics.analyze(parser.parse(lex.lex('test: ' + semantics.builtIns[i].replace('$', '?').replace('_', '-') + ' ;')));
+            mod.analysisErrors.should.have.length(0);
+            mod.definitions[0].terms[0].value.should.equal(semantics.builtIns[i]);
+        }
+    });
 });
