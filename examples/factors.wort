@@ -1,0 +1,19 @@
+dup2: (ab-abab) ;
+
+rest: uncons swap zap;
+
+### positive-to
+### Generates a list of non-zero integers up to the number on top of the stack.
+### A -> A [B]
+positive-to:
+    [dup > 0] [[]] [dup --] [cons] linrec
+    rest ;
+
+### factors
+### Takes a num and returns a list of all its factors.
+### number -> [number]
+factors:
+    positive-to [dup2 % 0 ==] filter ;
+
+main:
+    45 factors printz ;

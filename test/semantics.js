@@ -47,9 +47,10 @@ describe('#semantics', function() {
     });
 
     it('should strip question marks from names', function() {
-        var mod = semantics.analyze(parser.parse(lex.lex('-main: null?;')));
+        var mod = semantics.analyze(parser.parse(lex.lex('-main: null? [null?];')));
         mod.analysisErrors.should.have.length(0);
         mod.private[0].terms[0].value.should.equal('null$');
+        mod.private[0].terms[1][0].value.should.equal('null$');
     });
 
     it('should accept external and local definitions', function() {
