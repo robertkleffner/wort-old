@@ -47,7 +47,7 @@ False:
     ~~~ ;
 
 ###############################################
-### Kirby's 8 Basic Combinators
+### Basic Combinators
 ###############################################
 
 ### Zap
@@ -108,6 +108,16 @@ Cons:
     stack.push(q);
     ~~~ ;
 
+### Uncons
+### Pushes the first item from the quotation on top of the stack, then pushes the rest of that quotation.
+### [A] -> B [C]
+Uncons:
+    ~~~
+    var q = stack.pop();
+    stack.push(q.shift());
+    stack.push(q);
+    ~~~ ;
+
 ### Unit
 ### Quotes the item on top of the stack
 ### A -> [A]
@@ -122,6 +132,21 @@ Unit:
 I:
     ~~~
     var q = stack.pop();
+    for (var i = 0; i < q.length; i++) {
+        if (q[i] instanceof Function) {
+            q[i](stack);
+        } else {
+            stack.push(q[i]);
+        }
+    }
+    ~~~ ;
+
+### X
+### Executes the quotation on top of the stack without popping it.
+### [A] -> [A] A
+X:
+    ~~~
+    var q = stack[stack.length-1];
     for (var i = 0; i < q.length; i++) {
         if (q[i] instanceof Function) {
             q[i](stack);
@@ -210,12 +235,32 @@ Dec:
     stack[stack.length-1]--;
     ~~~ ;
 
+###############################################
+### Numeric Operations
+###############################################
+
 ### Neg
 ### Negates the element on top of the stack.
 ### A -> -A
 Neg:
     ~~~
     stack[stack.length-1] = -stack[stack.length-1];
+    ~~~ ;
+
+### To-num
+### Attempts to convert the element on top of the stack to a number.
+### A -> number
+To-num:
+    ~~~
+    stack[stack.length-1] = +stack[stack.length-1];
+    ~~~ ;
+
+### To-int
+### Attempts to convert the element on top of the stack to an integer.
+### A -> number
+To-int:
+    ~~~
+    stack[stack.length-1] = ~~stack[stack.length-1];
     ~~~ ;
 
 ###############################################

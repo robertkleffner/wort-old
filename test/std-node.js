@@ -29,7 +29,7 @@ describe('#std', function() {
         stack[1].should.equal(false);
     });
 
-    it('should work with the eight basic combinators', function() {
+    it('should work with the basic combinators', function() {
         var stack = [2];
 
         std.Zap(stack);
@@ -59,6 +59,13 @@ describe('#std', function() {
         stack[0][0].should.equal(2);
         stack[0][1].should.equal(3);
 
+        stack = [[2, 3]];
+        std.Uncons(stack);
+        stack.should.have.length(2);
+        stack[0].should.equal(2);
+        stack[1].should.have.length(1);
+        stack[1][0].should.equal(3);
+
         stack = [2];
         std.Unit(stack);
         stack.should.have.length(1);
@@ -69,6 +76,12 @@ describe('#std', function() {
         std.I(stack);
         stack.should.have.length(1);
         stack[0].should.equal(2);
+
+        stack = [[2]];
+        std.X(stack);
+        stack.should.have.length(2);
+        stack[0].should.have.length(1);
+        stack[1].should.equal(2);
 
         stack = [3, [4]];
         std.Dip(stack);
@@ -105,10 +118,20 @@ describe('#std', function() {
         stack = [4];
         std.Dec(stack);
         stack[0].should.equal(3);
+    });
 
-        stack = [3];
+    it('should perform numeric operations', function() {
+        var stack = [3];
         std.Neg(stack);
         stack[0].should.equal(-3);
+
+        stack = ['3.45'];
+        std.To_num(stack);
+        stack[0].should.equal(3.45);
+
+        stack = ['3.45'];
+        std.To_int(stack);
+        stack[0].should.equal(3);
     });
 
     it('should perform valid bitwise arithmetic', function() {
