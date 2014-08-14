@@ -105,26 +105,61 @@ describe("#lex", function() {
     it('should emit arithmetic operators', function() {
         var res = lex.lex('+ - * / % ++ --');
         res.should.have.length(7);
+        res[0].type.should.equal(lex.types.OPERATOR);
+        res[1].type.should.equal(lex.types.OPERATOR);
+        res[2].type.should.equal(lex.types.OPERATOR);
+        res[3].type.should.equal(lex.types.OPERATOR);
+        res[4].type.should.equal(lex.types.OPERATOR);
+        res[5].type.should.equal(lex.types.OPERATOR);
+        res[6].type.should.equal(lex.types.OPERATOR);
     });
 
     it('should emit bitwise operators', function() {
         var res = lex.lex('~ & | ^ << >> >>>');
         res.should.have.length(7);
+        res[0].type.should.equal(lex.types.OPERATOR);
+        res[1].type.should.equal(lex.types.OPERATOR);
+        res[2].type.should.equal(lex.types.OPERATOR);
+        res[3].type.should.equal(lex.types.OPERATOR);
+        res[4].type.should.equal(lex.types.OPERATOR);
+        res[5].type.should.equal(lex.types.OPERATOR);
+        res[6].type.should.equal(lex.types.OPERATOR);
     });
 
     it('should emit logical operators', function() {
         var res = lex.lex('&& || !');
         res.should.have.length(3);
+        res[0].type.should.equal(lex.types.OPERATOR);
+        res[1].type.should.equal(lex.types.OPERATOR);
+        res[2].type.should.equal(lex.types.OPERATOR);
     });
 
     it('should emit comparison operators', function() {
         var res = lex.lex('= != == !== < <= > >=');
         res.should.have.length(8);
+        res[0].type.should.equal(lex.types.OPERATOR);
+        res[1].type.should.equal(lex.types.OPERATOR);
+        res[2].type.should.equal(lex.types.OPERATOR);
+        res[3].type.should.equal(lex.types.OPERATOR);
+        res[4].type.should.equal(lex.types.OPERATOR);
+        res[5].type.should.equal(lex.types.OPERATOR);
+        res[6].type.should.equal(lex.types.OPERATOR);
+        res[7].type.should.equal(lex.types.OPERATOR);
     });
 
     it('should emit object access operators', function() {
         var res = lex.lex('-> <- @');
         res.should.have.length(3);
+        res[0].type.should.equal(lex.types.OPERATOR);
+        res[1].type.should.equal(lex.types.OPERATOR);
+        res[2].type.should.equal(lex.types.OPERATOR);
+    });
+
+    it('should emit stack shuffle sequences', function() {
+        var res = lex.lex('(abc-bac)');
+        res.should.have.length(1);
+        res[0].type.should.equal(lex.types.SHUFFLE);
+        res[0].value.should.equal('abc-bac');
     });
 
     it('should emit identifiers', function() {

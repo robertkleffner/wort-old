@@ -187,6 +187,11 @@ describe('#std', function() {
         stack.should.have.length(2);
         stack[1].should.equal(true);
 
+        stack = [undefined];
+        std.Undefined$(stack);
+        stack.should.have.length(2);
+        stack[1].should.equal(true);
+
         stack = [true, 'boolean'];
         std.Typeof$(stack);
         stack.should.have.length(2);
@@ -432,10 +437,6 @@ describe('#std', function() {
         stack.should.have.length(2);
         stack[0].should.equal(0);
         stack[1].should.have.length(3);
-
-        stack = [0, [1, 2, 3]];
-        std.Spread(stack);
-        stack.should.have.length(4);
 
         stack = [0, [1]];
         std.Substitute(stack);

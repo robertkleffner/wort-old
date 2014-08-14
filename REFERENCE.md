@@ -56,6 +56,8 @@ There is also a list of defined operators. The semantics of these operators may 
 
 *Quotation literals* use an array-like syntax. Elements are written between two square brackets with whitespace separating them. An example of a quotation containing three numbers: `[1 2 3]`. Quotations may be nested.
 
+*Stack shuffle* sequences occur between parentheses. A stack shuffle is composed of two groups of lowercase alphabetical characters separated by a single dash, e.g. `(abc-bac)`. Every letter which occurs on the right hand side of the dash must be present in the left hand side, and each character in the left hand side must occur only once in the left hand side. Each character on the left side may occur zero, one, or multiple times on the right hand side. The left hand side must have at least one alphabetical character, but the right hand side is permitted to be empty.
+
 *String literals* follow the JavaScript format, except they may be enclosed only in double quotes `""`. The backslash `\` precedes the usual escape sequences.
 
 *Numeric literals* can be written with an optional sign and an optional decimal part.
@@ -120,7 +122,11 @@ Every term in Wort can be considered a function which takes exactly one argument
 
 Wort has no variables because this would confuse and clutter the explicit flow of data through out the language. Unfortunately this has a tendency to make certain tasks, mathematical formulas especially, rather unintuitive looking as they must be written in Reverse Polish notation. This style also makes long definitions cumbersome and hard to read, so lots of small, easy to comprehend definitions are encouraged instead of large sprawling God-functions.
 
-Because all Wort definitions are composable, there is no need to specify the order of evaluation nor list arguments. Calling a definition does not require any additional syntax then, i.e. there are no parentheses for a definition call, nor are there argument lists. If one wants to duplicate the top element on the stack, one writes `dup` instead of `dup()`. But it might help the transition to the composable style if one thinks of all functions as being called like so `func1(func2(func3(...)))`.
+One extra bit of syntax which can sometimes alleviate numerous stack manipulation words is the *stack shuffle sequence* examined above. These short sequences of characters allow relocation and deletion of up to 26 elements from the top of the stack. However, it is highly recommended to keep the use of this mechanism as sparing as possible, and to keep the number of elements shuffled as small as possible when its use is convenient.
+
+Because all Wort definitions are composable, there is no need to specify the order of evaluation nor list arguments. Calling a definition does not require any additional syntax then, i.e. there are no parentheses for a definition call, nor are there argument lists. If one wants to duplicate the top element on the stack, one writes `dup` instead of `dup()`. But it might help the transition to the composable style if one thinks of all functions as being called like so `func3(func2(func1(...)))`.
+
+The `main` function always starts execution with an empty stack.
 
 ## Built-In Functions
 

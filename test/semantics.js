@@ -92,4 +92,23 @@ describe('#semantics', function() {
         mod.analysisErrors.should.have.length(0);
         mod.definitions[1].terms[0][0].localPub.should.equal(true);
     });
+
+    it('should validate stack shuffle sequences', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('test: (abc-ac) (abc-ac);')));
+        mod.analysisErrors.should.have.length(0);
+        mod.shuffles.should.have.length(1);
+        mod.shuffles[0].should.equal('abc-ac');
+
+        mod = semantics.analyze(parser.parse(lex.lex('test: (aa-);')));
+        mod.analysisErrors.should.have.length(1);
+        mod.analysisErrors[0].value.should.equal('Left hand side of shuffle cannot define variable "a" more than once');
+
+        mod = semantics.analyze(parser.parse(lex.lex('test: (-abc);')));
+        mod.analysisErrors.should.have.length(1);
+        mod.analysisErrors[0].value.should.equal('Shuffle sequence must have at least one variable on left hand side');
+
+        mod = semantics.analyze(parser.parse(lex.lex('test: (a-ab);')));
+        mod.analysisErrors.should.have.length(1);
+        mod.analysisErrors[0].value.should.equal('Shuffle variable "b" not found on left hand side of shuffle')
+    });
 });

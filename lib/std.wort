@@ -433,6 +433,14 @@ Null?:
     stack.push(stack[stack.length-1] === null);
     ~~~ ;
 
+### Undefined?
+### Pushes a truth value determining whether the top of the stack has type 'undefined'.
+### A -> A boolean
+Undefined?:
+    ~~~
+    stack.push(typeof stack[stack.length-1] === 'undefined');
+    ~~~ ;
+
 ### Typeof?
 ### Pushes a truth value determining whether the type of the second element is equal to the string on top of the stack.
 ### B A -> B (typeof B === A)
@@ -910,23 +918,14 @@ Gather:
     stack.push(stack.splice(-amount, amount));
     ~~~ ;
 
-### Spread
-### Takes the quotation on top of the stack and puts all its elements onto the stack.
-### Z [Y ... A] -> Z Y ... A
-Spread:
-    ~~~
-    var top = stack.pop();
-    stack = stack.push.apply(stack, top);
-    ~~~ ;
-
 ### Substitute
-### Takes the quotation on top of the stack and makes it the stack.
+### Executes the quotation on top of the stack, but clears the rest of the stack before doing so.
 ### Z [Y ... A] -> Y ... A
 Substitute:
     ~~~
     var sub = stack.pop();
     stack.length = 0;
-    stack.push.apply(stack, sub);
+    _exec(sub, stack);
     ~~~ ;
 
 ###############################################

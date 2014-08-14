@@ -59,6 +59,16 @@ describe('#transpile', function() {
     it('should emit quotations', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Test: [2];'), 'hodor')));
         res.should.equal('module.exports = (function() {\nvar $0 = {};\n$0.Test = function(stack) {\nstack.push([2]);\n};\nreturn $0;\n})();\n');
+
+        res = transpile.transpile(s.analyze(p.parse(l.lex('test: [dup];'), 'hodor')));
+        res.should.equal('var std = require("wort");\nmodule.exports = (function() {\nvar $0 = {};\n$0.test = function(stack) {\nstack.push([std.Dup]);\n};\nreturn $0;\n})();\n')
+    });
+
+    it('should emit stack shuffle operations', function() {
+        var res = transpile.transpile(s.analyze(p.parse(l.lex('test: (ab-ba);'), 'hodor')));
+        res.should.equal('module.exports = (function() {\nvar $0 = {};\nfunction $shuffle0(stack) {\n' +
+            'var b = stack.pop();\nvar a = stack.pop();\nstack.push(b);\nstack.push(a);\n' +
+            '}\n$0.test = function(stack) {\n$shuffle0(stack);\n};\nreturn $0;\n})();\n');
     });
 
     it('should call public main if present', function() {
