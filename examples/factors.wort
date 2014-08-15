@@ -6,14 +6,13 @@ rest: uncons swap zap;
 ### Generates a list of non-zero integers up to the number on top of the stack.
 ### A -> A [B]
 positive-to:
-    [dup 1 <] [[]] [dup --] [swap unit cat] linrec
-    rest ;
+    [dup 1 <] [unit] [dup --] [swap unit cat] linrec ;
 
 ### factors
 ### Takes a num and returns a list of all its factors.
 ### number -> [number]
 factors:
-    dup 2 / to-int positive-to swap zap [dup2 % 0 ==] filter ;
+    dup 2 / to-int positive-to [dup2 % 0 ==] filter swap zap ;
 
 main:
-    45 factors printz ;
+    45 factors print-stack ;
