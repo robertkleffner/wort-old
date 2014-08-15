@@ -19,34 +19,6 @@
     ~~~ ;
 
 ###############################################
-### Literals
-###############################################
-
-### Null
-### Pushes the null value onto the stack
-### -> null
-Null:
-    ~~~
-    stack.push(null);
-    ~~~ ;
-
-### True
-### Pushes the value 'true' onto the stack
-### -> boolean
-True:
-    ~~~
-    stack.push(true);
-    ~~~ ;
-
-### False
-### Pushes the value 'false' onto the stack
-### -> boolean
-False:
-    ~~~
-    stack.push(false);
-    ~~~ ;
-
-###############################################
 ### Basic Combinators
 ###############################################
 
@@ -943,6 +915,50 @@ Split:
     ~~~ ;
 
 ###############################################
+### Cleave, Spread, and Apply Combinators
+###############################################
+
+### Cleave
+### Executes each sub quotation of the quotation on top of the stack for the element below it.
+### A [[B] [C] [D] ...] -> A B A C A D ...
+Cleave:
+    ~~~
+    var list = stack.pop();
+    var arg = stack.pop();
+    for (var i = 0; i < list.length; i++) {
+        stack.push(arg);
+        _exec(list[i], stack);
+    }
+    ~~~ ;
+
+### Spread
+### Executes each quotation for a different item on the stack.
+### A B C ... [[M] [N] [O] ...] -> A M B N C O ...
+Spread:
+    ~~~
+    var list = stack.pop();
+    var args = stack.splice(stack.length - list.length, list.length);
+    for (var i = 0; i < list.length; i++) {
+        stack.push(args[i]);
+        _exec(list[i], stack);
+    }
+    ~~~ ;
+
+### Apply
+### Executes one quotation on top of the stack for the number of elements specified by the second element.
+### ... D C B [A] -> C A D A ...
+Apply:
+    ~~~
+    var q = stack.pop();
+    var num = stack.pop();
+    var args = stack.splice(stack.length - num, num);
+    for (var i = 0; i < args.length; i++) {
+        stack.push(args[i]);
+        _exec(q, stack);
+    }
+    ~~~ ;
+
+###############################################
 ### Stack Utilities
 ###############################################
 
@@ -999,4 +1015,12 @@ Print:
 Printz:
     ~~~
     console.log(stack.pop());
+    ~~~ ;
+
+### Print-stack
+### Prints the entire stack.
+### ->
+Print-stack:
+    ~~~
+    console.log(stack);
     ~~~ ;

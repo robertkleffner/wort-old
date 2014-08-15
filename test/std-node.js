@@ -11,24 +11,6 @@ describe('#std', function() {
         stack.should.have.length(0);
     });
 
-    it('should push a null value on the stack', function() {
-        var stack = [];
-
-        std.Null(stack);
-        stack.should.have.length(1);
-        should.not.exist(stack[0]);
-    });
-
-    it('should push boolean values on the stack', function() {
-        var stack = [];
-
-        std.True(stack);
-        std.False(stack);
-        stack.should.have.length(2);
-        stack[0].should.equal(true);
-        stack[1].should.equal(false);
-    });
-
     it('should work with the basic combinators', function() {
         var stack = [2];
 
@@ -448,6 +430,27 @@ describe('#std', function() {
         stack[0][0].should.equal(2);
         stack[1].should.have.length(2);
         stack[1][0].should.equal(3);
+    });
+
+    it('should execute the cleave, spread, and app combinators', function() {
+        var stack = [2, [[3, std.Eq], [2, std.Eq]]];
+        std.Cleave(stack);
+        stack.should.have.length(2);
+        stack[0].should.equal(false);
+        stack[1].should.equal(true);
+
+        stack = [2, 3, [[2, std.Eq], [3, std.Eq]]];
+        std.Spread(stack);
+        stack.should.have.length(2);
+        stack[0].should.equal(true);
+        stack[1].should.equal(true);
+
+        stack = [2, 3, 4, 3, [1, std.Add]];
+        std.Apply(stack);
+        stack.should.have.length(3);
+        stack[0].should.equal(3);
+        stack[1].should.equal(4);
+        stack[2].should.equal(5);
     });
 
     it('should perform stack utilities correctly', function() {

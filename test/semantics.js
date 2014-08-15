@@ -34,10 +34,19 @@ describe('#semantics', function() {
         mod.analysisErrors[0].value.should.equal('Word "Main" is defined twice');
     });
 
-    it('should catch names replacing built in words', function() {
+    it('should catch names overwriting built in words', function() {
         var mod = semantics.analyze(parser.parse(lex.lex('dup: 2;')));
         mod.analysisErrors.should.have.length(1);
         mod.analysisErrors[0].value.should.equal('"dup" is a reserved word and cannot be a definition name');
+    });
+
+    it('should detect boolean literals', function() {
+        var mod = semantics.analyze(parser.parse(lex.lex('test: true false null undefined;')));
+        mod.analysisErrors.should.have.length(0);
+        mod.definitions[0].terms[0].type.should.equal(lex.types.WORD_LITERAL);
+        mod.definitions[0].terms[1].type.should.equal(lex.types.WORD_LITERAL);
+        mod.definitions[0].terms[2].type.should.equal(lex.types.WORD_LITERAL);
+        mod.definitions[0].terms[3].type.should.equal(lex.types.WORD_LITERAL);
     });
 
     it('should not allow definition names to have periods', function() {
