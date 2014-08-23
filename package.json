@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "commander": "",
+    "source-map": "",
     "xregexp": ""
   }
 }
