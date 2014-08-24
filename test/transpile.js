@@ -38,7 +38,7 @@ describe('#transpile', function() {
 
     it('should emit operators', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Test: +;'), 'hodor')));
-        res.toString().should.equal('module.exports = (function() {var $0 = {};$0.Test = function(stack) {std.Add(stack);};return $0;})();');
+        res.toString().should.equal('var std = require("wort");module.exports = (function() {var $0 = {};$0.Test = function(stack) {std.Add(stack);};return $0;})();');
     });
 
     it('should emit built in functions', function() {
@@ -48,7 +48,7 @@ describe('#transpile', function() {
 
     it('should emit property accessors', function() {
         var res = transpile.transpile(s.analyze(p.parse(l.lex('Test: ->hodor;'), 'hodor')));
-        res.toString().should.equal('module.exports = (function() {var $0 = {};$0.Test = function(stack) {std.Setvalobj(stack, "hodor");};return $0;})();');
+        res.toString().should.equal('var std = require("wort");module.exports = (function() {var $0 = {};$0.Test = function(stack) {std.Setvalobj(stack, "hodor");};return $0;})();');
     });
 
     it('should emit user defined words', function() {

@@ -171,4 +171,12 @@ describe("#lex", function() {
         res[3].type.should.equal(lex.types.WORD);
         res[4].type.should.equal(lex.types.WORD);
     });
+
+    it('should track column number', function() {
+        var res = lex.lex('hodor hodor\nhodor');
+        res.should.have.length(3);
+        res[0].column.should.equal(0);
+        res[1].column.should.equal(6);
+        res[2].column.should.equal(0);
+    });
 });
