@@ -15,7 +15,7 @@ As this is a reference manual, the discussion will not refrain from jargon typic
 There are three guiding principles behind the design of Wort:
 
 - **Clarity**: Wort is meant to be easy to read and easy to comprehend. Extra syntax is kept to a minimum. Whitespace is appreciated.
-- **Basic**: Wort has a small set of types and foundational semantics. It should be both easy to learn and easy to extend.
+- **Parsimony**: Wort has a small set of types and foundational semantics. It should be both easy to learn and easy to extend.
 - **Playful**: There's more than one way to do it. And if none of those ways satisfy, you can make your own rules!
 
 Secondary concerns at the moment include efficiency of execution and practicality. These are important concerns, but will be addressed after the first three concerns and will not preclude any design decisions made due to the first three principles. As such, it may not be a language suitable for high performance applications. But then, you're probably not using a scripting language anyway if that's your domain.

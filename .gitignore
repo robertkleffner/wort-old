@@ -2,3 +2,4 @@ node_modules
 npm-debug.log
 examples/*.js
 examples/*.js.map
+docs/_build
