@@ -32,8 +32,9 @@ Wort only supports single line comments, beginning with a ``#`` and running unti
 Literals
 --------------------------------
 
-Literals are any collection or value that appear directly in the source code of a Wort program:
+Literals are any collection or value that appear directly in the source code of a Wort program::
 
+    null        # the null value
     13          # the number 13
     3.14        # the number 3.14
     'hodor'     # a string of text
@@ -55,4 +56,78 @@ A Wort identifier must begin with a letter (this may also be a Unicode letter), 
     -what-is-this-
     ????
 
-Note that `-` and `--` are not legal identifiers, as they denote the subtraction operator and the decrement operator.
+Note that `-` and `--` are not legal identifiers, as they denote the subtraction operator and the decrement operator respectively. Also note that word names which begin with a dash are treated differently from those that don't: names which begin with a dash are considered *private* functions, whereas names which begin with any other valid character are considered *public*. This will be covered later in the modules section.
+
+Operators and Primitives
+--------------------------------
+
+Wort specifies several primitive words. Due to the nature of Wort, which relies on a few basic principles, these primitives are treated no different from user defined words. The ``if`` word, for instance, is actually just a word instead of a separate syntax, and can be analyzed as any other word in Wort. However, Wort does not allow user defined functions to use a name that is used by a primitive, and hence these are called *reserved words*. The entire list of reserved words is as follows::
+
+    zap
+    swap
+    cat
+    clone
+    cons
+    dup
+    uncons
+    unit
+    i
+    x
+    dip
+    neg
+    to-number
+    to-boolean
+    to-string
+    typeof
+    null?
+    typeof?
+    quotation?
+    string?
+    boolean?
+    number?
+    object?
+    word?
+    empty?
+    in?
+    has?
+    where?
+    similar?
+    slice
+    slice-from
+    cut
+    insert
+    splice
+    reverse
+    sort
+    case
+    branch
+    when
+    if
+    cond
+    while
+    linrec
+    tailrec
+    genrec
+    step
+    fold
+    map
+    times
+    filter
+    split
+    cleave
+    spread
+    apply
+    annihilate
+    gather
+    substitute
+    print
+    printz
+    print-stack
+
+Wort also has a set of primitive operators, which are treated just like words but are often made up of symbols which can't be used in the names of regular words. The operation specified by most of these operators might be intuitive, but a full description of the operators and their semantics occurs later in the docs. For now, here is the entire list of operators included in Wort::
+
+    +   -   *   /   %   ++  --      # arithmetic operators
+    ~   &   |   ^   <<  >>  >>>     # bitwise operators
+    &&  ||  !                       # logical operators
+    ==  !=  <   <=  >   >=          # comparison operators
+    ->  <-  @                       # property access operators

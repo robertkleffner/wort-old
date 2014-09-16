@@ -6,3 +6,5 @@ The Wort Programming Language
     :maxdepth: 1
 
     introduction
+    lexical-structure
+    types
