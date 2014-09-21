@@ -99,6 +99,12 @@ Wort specifies several primitive words. Due to the nature of Wort, which relies 
     splice
     reverse
     sort
+    fields
+    values
+    has-field?
+    as-proto
+    from-proto
+    kill-field
     case
     branch
     when
@@ -131,3 +137,14 @@ Wort also has a set of primitive operators, which are treated just like words bu
     &&  ||  !                       # logical operators
     ==  !=  <   <=  >   >=          # comparison operators
     ->  <-  @                       # property access operators
+
+Object Access Syntax
+--------------------------------
+
+In Wort, every syntax token must separated from its neighbors by at least one whitespace character. However, there can be considered one exception to this rule: that of object property access. This special notation is designed to make it somewhat less verbose to modify an object on the stack. One can set a property on the object on top of the stack by typing either ``->prop-name`` or ``<-prop-name``. One can read the value of the specified property by typing ``@prop-name``. The specific operation of these rules is detailed later, but it is helpful to specify here that this notation is a valid part of the language. Any of the property access operators directly followed by a valid identifier will transform into the equivalent notation::
+
+    ->prop-name         # becomes: 'prop-name' ->
+    <-prop-name         # becomes: 'prop-name' <-
+    @prop-name          # becomes: 'prop-name' @
+
+In some targets, the compiler is able to better optimize the syntax given above, so it is sometimes preferable to use it for both readability *and* performance.
