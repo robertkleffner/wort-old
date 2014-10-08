@@ -35,7 +35,8 @@
   "homepage": "https://github.com/robertkleffner/wort",
   "devDependencies": {
     "mocha": "",
-    "chai": ""
+    "chai": "",
+    "pegjs": ""
   },
   "dependencies": {
     "commander": "",
