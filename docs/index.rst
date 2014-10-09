@@ -8,3 +8,4 @@ The Wort Programming Language
     introduction
     lexical-structure
     types
+    syntactic-structure
